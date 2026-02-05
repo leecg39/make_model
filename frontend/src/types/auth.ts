@@ -21,9 +21,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name?: string;
-  nickname?: string;
-  role?: 'brand' | 'creator';
+  nickname: string;
+  role: 'brand' | 'creator';
   company_name?: string;
 }
 

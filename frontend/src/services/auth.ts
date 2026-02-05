@@ -33,7 +33,7 @@ export const authService = {
    * Register a new user.
    */
   async register(data: RegisterRequest): Promise<User> {
-    const response = await fetch(`${API_URL}/api/v1/auth/register`, {
+    const response = await fetch(`${API_URL}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -51,7 +51,7 @@ export const authService = {
    * Login and get access token.
    */
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/api/v1/auth/login/json`, {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -74,7 +74,7 @@ export const authService = {
    */
   async logout(): Promise<void> {
     try {
-      await fetchWithAuth('/api/v1/auth/logout', { method: 'POST' });
+      await fetchWithAuth('/api/auth/logout', { method: 'POST' });
     } finally {
       authLib.removeToken();
     }
@@ -84,7 +84,7 @@ export const authService = {
    * Get current user profile.
    */
   async getCurrentUser(): Promise<User> {
-    const response = await fetchWithAuth('/api/v1/users/me');
+    const response = await fetchWithAuth('/api/users/me');
 
     if (!response.ok) {
       throw new Error('Failed to get user');
@@ -97,7 +97,7 @@ export const authService = {
    * Update current user profile.
    */
   async updateProfile(data: Partial<User>): Promise<User> {
-    const response = await fetchWithAuth('/api/v1/users/me', {
+    const response = await fetchWithAuth('/api/users/me', {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -114,7 +114,7 @@ export const authService = {
    * Change password.
    */
   async changePassword(data: PasswordChangeRequest): Promise<void> {
-    const response = await fetchWithAuth('/api/v1/auth/password/change', {
+    const response = await fetchWithAuth('/api/auth/password/change', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -129,7 +129,7 @@ export const authService = {
    * Delete current user account.
    */
   async deleteAccount(): Promise<void> {
-    const response = await fetchWithAuth('/api/v1/users/me', {
+    const response = await fetchWithAuth('/api/users/me', {
       method: 'DELETE',
     });
 

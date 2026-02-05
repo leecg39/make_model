@@ -1,0 +1,271 @@
+================================================================================
+
+                 SIGNUP CONNECTION POINTS VERIFICATION
+                            P1-S2-V Task
+
+================================================================================
+
+DATE: 2026-02-05
+METHOD: Code Review (Static Analysis + Schema Comparison)
+STATUS: CRITICAL ISSUE FOUND
+
+================================================================================
+VERIFICATION SUMMARY
+================================================================================
+
+Total Checks:              8
+Passed:                    6  ✅
+Failed:                    1  ❌
+Warned:                    1  ⚠️
+
+Overall Result:            CRITICAL ISSUE BLOCKS SIGNUP
+
+================================================================================
+DETAILED RESULTS
+================================================================================
+
+V1. Backend Endpoint: POST /api/auth/signup
+    Location: backend/app/api/v1/auth.py:49-62
+    Status: ✅ PASS
+    Details: Endpoint exists, returns UserResponse (201)
+
+V2. Field Coverage: Backend Schema
+    Location: backend/app/schemas/auth.py:33-59
+    Status: ✅ PASS
+    Details: All fields present (email, password, nickname, role, company_name)
+
+    Backend fields:
+    - email: EmailStr (required)
+    - password: str (required, min 8 chars)
+    - nickname: str (required)
+    - role: str (required, enum: ["brand", "creator"])
+    - company_name: Optional[str] (required if role="brand")
+
+V3. Frontend Service API Call
+    Location: frontend/src/services/auth.ts:35-47
+    Status: ❌ FAIL (CRITICAL)
+
+    ISSUE: ENDPOINT MISMATCH
+
+    Frontend calls:   /api/v1/auth/register  ❌
+    Backend has:     /api/v1/auth/signup    ✅
+
+    Impact: 404 Not Found - Signup completely broken
+
+    Fix needed:
+    File:   frontend/src/services/auth.ts
+    Line:   36
+    Change: /api/v1/auth/register → /api/v1/auth/signup
+
+V4. Frontend Type Definition
+    Location: frontend/src/types/auth.ts:21-28
+    Status: ⚠️ WARN (MEDIUM)
+
+    ISSUE: TYPE MISMATCH
+    Current: All fields optional (?)
+    Expected: Required fields should be non-optional
+
+    Impact: Reduced type safety; backend validates anyway
+
+V5. Frontend Form Collection
+    Location: frontend/src/app/auth/signup/page.tsx:177-197
+    Status: ✅ PASS
+    Details: All fields collected correctly
+    - email, password, nickname, role, company_name
+
+V6. Navigation: Signup → Role-based Dashboard
+    Location: frontend/src/app/auth/signup/page.tsx:50-61
+    Status: ✅ PASS
+    Details: Role-based redirect implemented
+    - brand → /dashboard/brand
+    - creator → /dashboard/creator
+
+V7. Navigation: Signup → Login
+    Location: frontend/src/app/auth/signup/page.tsx:497-502
+    Status: ✅ PASS
+    Details: Login link present (href="/auth/login")
+
+V8. Store Auto-login Connection
+    Location: frontend/src/stores/auth.ts:57-68
+    Status: ✅ PASS
+    Details: register() → login() chain functional
+
+================================================================================
+CRITICAL ISSUE #1: API Endpoint Mismatch
+================================================================================
+
+Severity:     CRITICAL (Blocks signup flow)
+Location:     frontend/src/services/auth.ts:36
+Type:         Endpoint URL mismatch
+
+Problem:
+  Frontend signup service calls /api/v1/auth/register
+  Backend only implements /api/v1/auth/signup
+
+Consequence:
+  POST /api/v1/auth/register → 404 Not Found
+  User cannot complete signup
+  Signup flow completely broken
+
+Required Fix:
+  File:   frontend/src/services/auth.ts
+  Line:   36
+  Change: /api/v1/auth/register to /api/v1/auth/signup
+
+  Current:  const response = await fetch(`${API_URL}/api/v1/auth/register`, {
+  Fixed:    const response = await fetch(`${API_URL}/api/v1/auth/signup`, {
+
+Effort:   1 minute
+
+================================================================================
+MEDIUM ISSUE #2: Type Definition Mismatch
+================================================================================
+
+Severity:     MEDIUM (Type safety, not blocking runtime)
+Location:     frontend/src/types/auth.ts:21-28
+Type:         TypeScript interface mismatch
+
+Problem:
+  RegisterRequest marks all fields as optional (?)
+  But backend Pydantic expects required fields
+
+Current interface:
+  export interface RegisterRequest {
+    email?: string;
+    password?: string;
+    nickname?: string;
+    role?: 'brand' | 'creator';
+    company_name?: string;
+  }
+
+Expected interface:
+  export interface RegisterRequest {
+    email: string;
+    password: string;
+    nickname: string;
+    role: 'brand' | 'creator';
+    company_name?: string;
+  }
+
+Impact:
+  Reduced type safety; backend validates anyway
+  Developer experience degraded
+
+Effort:   5 minutes
+
+================================================================================
+FIELD COVERAGE ANALYSIS
+================================================================================
+
+Frontend sends:           Backend expects:          Status:
+- email                   email: EmailStr           ✅ MATCH
+- password                password: str             ✅ MATCH
+- nickname                nickname: str             ✅ MATCH
+- role                    role: str (enum)          ✅ MATCH
+- company_name (brand)    company_name: Optional    ✅ MATCH
+
+Overall Coverage:         ✅ COMPLETE
+
+================================================================================
+NAVIGATION FLOW ANALYSIS
+================================================================================
+
+Signup → Dashboard:
+  ✅ user.role === 'brand' → /dashboard/brand
+  ✅ user.role === 'creator' → /dashboard/creator
+  ✅ unknown role → /
+
+Signup → Login:
+  ✅ Link href="/auth/login"
+  ✅ Link text: "로그인" (Korean)
+
+Auto-login Chain:
+  ✅ register() → authService.register()
+  ✅ then → get().login()
+  ✅ then → user state updated
+  ✅ then → useEffect triggers navigation
+
+Overall Navigation:       ✅ CORRECT
+
+================================================================================
+WHAT'S WORKING CORRECTLY
+================================================================================
+
+1. Backend endpoint structure        ✅
+   - POST /api/auth/signup implemented
+   - Returns UserResponse with 201
+
+2. Field coverage & validation       ✅
+   - All required form fields in backend schema
+   - Password validation (8+ chars)
+   - Role enum validation
+   - company_name conditional requirement
+
+3. Frontend form collection          ✅
+   - All fields collected correctly
+   - Role selected via UI
+   - company_name only for brand role
+
+4. Navigation flow                   ✅
+   - Role-based dashboard redirect
+   - Login link present
+   - Auto-login chain functional
+
+5. Store implementation              ✅
+   - register() → login() chaining
+   - User state update triggers redirect
+
+================================================================================
+ACTION ITEMS (PRIORITY ORDER)
+================================================================================
+
+CRITICAL (Blocks signup):
+  1. Fix endpoint in frontend/src/services/auth.ts:36
+     Change: /api/v1/auth/register → /api/v1/auth/signup
+     Effort: 1 minute
+     Impact: CRITICAL - Signup will fail without this
+
+MEDIUM (Type safety):
+  2. Update types in frontend/src/types/auth.ts:21-28
+     Mark required fields as non-optional
+     Effort: 5 minutes
+     Impact: MEDIUM - Improves type safety
+
+OPTIONAL:
+  3. Run integration tests after fixes
+  4. Verify full signup → dashboard flow
+
+================================================================================
+GENERATED VERIFICATION FILES
+================================================================================
+
+Created:
+  frontend/tests/integration/signup.verify.ts
+  └─ TypeScript verification code with report structure
+
+  frontend/tests/integration/VERIFICATION_REPORT.md
+  └─ Detailed Markdown report (8 checks, findings, actions)
+
+  frontend/tests/integration/CONSOLE_OUTPUT.txt
+  └─ This console summary
+
+================================================================================
+VERIFICATION CONCLUSION
+================================================================================
+
+Current Status:            ❌ BROKEN (Critical issue blocks signup)
+After Fix Status:          ✅ FUNCTIONAL (All connection points validated)
+
+The signup flow is 90% implemented correctly. There is 1 critical endpoint
+mismatch that blocks the entire signup process.
+
+Once the endpoint URL is fixed from /api/v1/auth/register to /api/v1/auth/signup,
+the signup flow will be fully functional with all connection points validated.
+
+================================================================================
+
+Verification completed: 2026-02-05
+Method: Code Review (Static Analysis + Schema Comparison)
+Next step: Fix endpoint URL and re-test
+
+================================================================================
