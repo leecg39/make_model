@@ -1,0 +1,120 @@
+version: "2.0"
+
+screen:
+  name: 크리에이터 대시보드
+  route: /dashboard/creator
+  layout: dashboard
+  auth: true
+  roles: [creator]
+
+data_requirements:
+  - resource: orders
+    needs: [id, order_number, brand, model, package_type, status, total_price, created_at]
+    filters: { creator_id: "me", sort: "created_at:desc" }
+
+  - resource: ai_models
+    needs: [id, name, thumbnail_url, status, view_count, rating]
+    filters: { creator_id: "me" }
+    label: my_models
+
+  - resource: settlements
+    needs: [id, order_id, total_amount, platform_fee, settlement_amount, status]
+    filters: { creator_id: "me" }
+
+components:
+  - id: dashboard_nav
+    type: navigation
+    position: sidebar
+    function: 대시보드 네비게이션 (주문 관리, 내 모델, 정산, 프로필 설정)
+    events:
+      - on: click:tab
+        do: 해당 탭 콘텐츠 표시
+
+  - id: order_table
+    type: table
+    position: main
+    function: 주문 목록 (번호, 브랜드명, 모델, 패키지, 상태, 금액, 주문일, 액션)
+    data_source:
+      resource: orders
+    events:
+      - on: click:accept
+        do: 주문 수락 (상태 → accepted)
+      - on: click:reject
+        do: 거절 사유 입력 모달 표시
+      - on: click:complete
+        do: 파일 업로드 모달 → 완료 처리
+      - on: click:chat
+        do: /orders/:id/chat으로 이동
+
+  - id: my_models_grid
+    type: grid
+    position: main
+    function: 내 AI 모델 목록 (이름, 상태, 조회수, 평점)
+    data_source:
+      resource: ai_models
+      label: my_models
+    events:
+      - on: click:card
+        do: /models/:id로 이동
+      - on: click:register
+        do: /models/new로 이동
+
+  - id: settlement_summary
+    type: stat-card
+    position: main
+    function: 정산 대기 금액 및 정산 내역 표시
+    data_source:
+      resource: settlements
+
+  - id: reject_modal
+    type: modal
+    position: overlay
+    function: 주문 거절 사유 입력
+    events:
+      - on: submit
+        do: 거절 사유와 함께 주문 거절 처리
+
+  - id: upload_modal
+    type: modal
+    position: overlay
+    function: 납품 파일 업로드 (완료 처리용)
+    events:
+      - on: submit
+        do: 파일 업로드 후 주문 완료 처리
+
+connections:
+  navigations:
+    - from: order_table
+      to: /orders/:id/chat
+    - from: my_models_grid
+      to: /models/:id
+    - from: my_models_grid
+      to: /models/new
+  shared_components:
+    - header
+
+tests:
+  - name: 초기 로드
+    when: 크리에이터 로그인 후 대시보드 접속
+    then:
+      - 사이드바 네비게이션 표시
+      - 주문 목록 테이블 표시
+      - 새 주문 알림 배지 (pending 건수)
+
+  - name: 주문 수락
+    when: pending 주문의 "수락" 클릭
+    then:
+      - 주문 상태 accepted로 변경
+      - 테이블 상태 배지 업데이트
+
+  - name: 내 모델 없음
+    when: "내 모델" 탭 클릭, 등록된 모델 없음
+    then:
+      - 빈 상태 메시지 ("등록된 모델이 없습니다")
+      - "첫 번째 모델 등록하기" CTA 표시
+
+  - name: 정산 확인
+    when: "정산" 탭 클릭
+    then:
+      - 정산 대기 금액 표시
+      - 정산 내역 목록 표시

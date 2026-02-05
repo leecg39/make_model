@@ -1,0 +1,91 @@
+version: "2.0"
+
+screen:
+  name: AI 모델 등록
+  route: /models/new
+  layout: full-width
+  auth: true
+  roles: [creator]
+
+data_requirements:
+  - resource: ai_models
+    needs: [name, description, style, gender, age_range, tags]
+
+  - resource: model_images
+    needs: [image_url, display_order, is_thumbnail]
+
+components:
+  - id: registration_form
+    type: form
+    position: main
+    function: 모델 등록 폼 (이름, 소개, 스타일, 성별, 나이대)
+    events:
+      - on: submit:publish
+        do: 모델 공개 (status=active) → /dashboard/creator로 이동
+      - on: submit:draft
+        do: 임시 저장 (status=draft) → 토스트 알림
+
+  - id: image_uploader
+    type: form
+    position: main
+    function: 포트폴리오 이미지 드래그 앤 드롭 업로드 (최대 10장)
+    events:
+      - on: drop:images
+        do: 이미지 업로드 + AI 자동 분석 실행
+      - on: click:remove
+        do: 이미지 삭제
+
+  - id: ai_auto_generate
+    type: section
+    position: main
+    function: AI 자동 생성 (스타일 감지, 태그 생성, 소개 문구 작성)
+    events:
+      - on: click:generate
+        do: 업로드된 이미지 기반 AI 분석 실행
+      - on: click:apply
+        do: AI 생성 결과를 폼에 적용
+
+  - id: preview_button
+    type: button
+    position: main
+    function: 모델 프로필 미리보기
+    events:
+      - on: click
+        do: /models/:id 미리보기 모달 표시
+
+connections:
+  navigations:
+    - from: registration_form
+      to: /dashboard/creator
+    - from: preview_button
+      to: /models/:id
+  shared_components:
+    - header
+  external:
+    - ai_analysis
+
+tests:
+  - name: 이미지 업로드 + AI 분석
+    when: 이미지 5장 드래그 앤 드롭
+    then:
+      - 이미지 업로드 진행 표시
+      - AI 자동 분석 실행 (로딩 표시)
+      - 스타일/태그/소개 문구 자동 채움
+
+  - name: AI 결과 수동 수정
+    when: AI가 생성한 스타일을 casual → formal로 변경
+    then:
+      - 폼 필드 업데이트됨
+
+  - name: 공개 등록
+    when: 모든 필드 입력 후 "공개" 클릭
+    then:
+      - 모델 status=active로 생성
+      - /dashboard/creator로 이동
+      - 성공 토스트 표시
+
+  - name: 임시 저장
+    when: 일부 필드만 입력 후 "임시 저장" 클릭
+    then:
+      - 모델 status=draft로 저장
+      - "임시 저장되었습니다" 토스트 표시

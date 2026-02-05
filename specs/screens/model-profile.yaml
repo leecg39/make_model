@@ -1,0 +1,96 @@
+version: "2.0"
+
+screen:
+  name: 모델 프로필 상세
+  route: /models/:id
+  layout: full-width
+  auth: false
+
+data_requirements:
+  - resource: ai_models
+    needs: [id, name, description, style, gender, age_range, view_count, rating, thumbnail_url, tags, images, creator]
+    filters: { id: ":id" }
+
+  - resource: favorites
+    needs: [model_id]
+    auth_required: true
+
+components:
+  - id: model_header
+    type: detail
+    position: main
+    function: 모델 기본 정보 표시 (이름, 스타일, 성별, 나이대, 조회수, 평점)
+    data_source:
+      resource: ai_models
+    events:
+      - on: click:booking
+        do: 로그인/브랜드 체크 후 /booking/new?model=:id로 이동
+      - on: click:favorite
+        do: 로그인 체크 후 찜 토글
+      - on: click:inquiry
+        do: 로그인 체크 후 문의 모달 표시
+
+  - id: portfolio_gallery
+    type: grid
+    position: main
+    function: 포트폴리오 이미지 갤러리 (3:4 비율)
+    data_source:
+      resource: ai_models
+    events:
+      - on: click:image
+        do: 라이트박스 확대 표시
+
+  - id: creator_info
+    type: card
+    position: main
+    function: 크리에이터 정보 표시 (닉네임, 프로필 이미지)
+    data_source:
+      resource: ai_models
+
+  - id: image_lightbox
+    type: modal
+    position: overlay
+    function: 포트폴리오 이미지 확대 보기
+    events:
+      - on: click:close
+        do: 라이트박스 닫기
+      - on: click:prev
+        do: 이전 이미지
+      - on: click:next
+        do: 다음 이미지
+
+connections:
+  navigations:
+    - from: model_header
+      to: /booking/new
+    - from: model_header
+      to: /auth/login
+  shared_components:
+    - header
+    - footer
+  external:
+    - auth
+
+tests:
+  - name: 초기 로드
+    when: /models/:id 접속
+    then:
+      - 모델 기본 정보 표시
+      - 포트폴리오 이미지 갤러리 표시
+      - CTA 버튼 3개 표시 (섭외/찜/문의)
+
+  - name: 섭외 요청 (브랜드)
+    when: 브랜드 로그인 상태에서 "섭외 요청하기" 클릭
+    then:
+      - /booking/new?model=:id로 이동
+
+  - name: 섭외 요청 (비로그인)
+    when: 비로그인 상태에서 "섭외 요청하기" 클릭
+    then:
+      - 로그인 모달 표시
+
+  - name: 이미지 라이트박스
+    when: 포트폴리오 이미지 클릭
+    then:
+      - 라이트박스로 이미지 확대 표시
+      - 이전/다음 네비게이션 표시

@@ -1,0 +1,105 @@
+version: "2.0"
+
+screen:
+  name: 섭외 Wizard
+  route: /booking/new
+  layout: full-width
+  auth: true
+  roles: [brand]
+
+data_requirements:
+  - resource: ai_matching
+    needs: [recommended_models, match_scores]
+    filters: { concept_description: "form:concept", reference_images: "form:images" }
+
+  - resource: ai_models
+    needs: [id, name, thumbnail_url, style, rating]
+    label: selected_model
+
+  - resource: orders
+    needs: [id, order_number, total_price, status]
+
+  - resource: payments
+    needs: [id, status, transaction_id]
+
+components:
+  - id: wizard_stepper
+    type: stepper
+    position: main
+    function: 3단계 진행 표시 (콘셉트 → AI추천 → 패키지/결제)
+    events:
+      - on: click:step
+        do: 완료된 단계로만 이동 가능
+
+  - id: step1_concept_form
+    type: form
+    position: main
+    function: "Step 1: 콘셉트 설명 입력 + 참고 이미지 업로드"
+    events:
+      - on: submit
+        do: AI 매칭 API 호출, Step 2로 이동
+
+  - id: step2_recommendation
+    type: grid
+    position: main
+    function: "Step 2: AI 추천 모델 3-5개 표시, 라디오로 1개 선택"
+    data_source:
+      resource: ai_matching
+    events:
+      - on: click:select_model
+        do: 모델 선택, Step 3으로 이동
+
+  - id: step3_package_payment
+    type: form
+    position: main
+    function: "Step 3: 패키지 선택 (Basic/Standard/Premium) + 포트원 결제"
+    events:
+      - on: change:package
+        do: 총 금액 업데이트
+      - on: submit
+        do: 주문 생성 + 포트원 결제 창 실행
+
+  - id: payment_success_modal
+    type: modal
+    position: overlay
+    function: 결제 성공 확인 모달
+    events:
+      - on: click:go_dashboard
+        do: /dashboard/brand로 이동
+
+connections:
+  navigations:
+    - from: payment_success_modal
+      to: /dashboard/brand
+    - from: wizard_stepper
+      to: /models/:id
+  shared_components:
+    - header
+  external:
+    - auth
+    - portone
+
+tests:
+  - name: Step 1 콘셉트 입력
+    when: 콘셉트 500자 입력 후 "다음" 클릭
+    then:
+      - AI 매칭 로딩 표시
+      - Step 2로 전환, 추천 모델 3-5개 표시
+
+  - name: Step 2 모델 선택
+    when: 추천 모델 중 1개 선택 후 "다음" 클릭
+    then:
+      - Step 3으로 전환
+      - 선택된 모델 정보 + 패키지 옵션 표시
+
+  - name: Step 3 결제 완료
+    when: Standard 패키지 선택 후 "결제하기" 클릭
+    then:
+      - 포트원 결제 창 실행
+      - 결제 성공 시 성공 모달 표시
+
+  - name: 결제 실패
+    when: 결제 과정에서 실패
+    then:
+      - 에러 모달 표시 ("결제에 실패했습니다. 다시 시도해주세요.")
+      - Step 3에 머무름

@@ -1,0 +1,83 @@
+# 공통 타입 정의
+# 화면 명세에서 참조되는 공통 열거형 및 타입
+
+version: "2.0"
+
+enums:
+  UserRole:
+    values: [brand, creator, admin]
+    description: 사용자 역할
+
+  ModelStyle:
+    values: [casual, formal, sporty, vintage]
+    description: AI 모델 스타일
+
+  ModelGender:
+    values: [male, female, neutral]
+    description: AI 모델 성별
+
+  ModelAgeRange:
+    values: [10s, 20s, 30s, 40s+]
+    description: AI 모델 나이대
+
+  ModelStatus:
+    values: [draft, active, inactive]
+    description: AI 모델 상태
+
+  PackageType:
+    values: [basic, standard, premium]
+    description: 섭외 패키지
+    details:
+      basic: { images: 3, exclusive: false, label: "Basic" }
+      standard: { images: 10, exclusive: false, label: "Standard" }
+      premium: { images: 20, exclusive: true, exclusive_months: 3, label: "Premium" }
+
+  OrderStatus:
+    values: [pending, accepted, in_progress, completed, cancelled]
+    description: 주문 상태
+    transitions:
+      pending: [accepted, cancelled]
+      accepted: [in_progress, cancelled]
+      in_progress: [completed, cancelled]
+      completed: []
+      cancelled: []
+
+  PaymentStatus:
+    values: [pending, completed, failed, refunded]
+    description: 결제 상태
+
+  PaymentMethod:
+    values: [card, transfer]
+    description: 결제 수단
+
+  SettlementStatus:
+    values: [pending, completed]
+    description: 정산 상태
+
+  SortOption:
+    values: [view_count:desc, created_at:desc, rating:desc]
+    labels:
+      view_count:desc: 인기순
+      created_at:desc: 최신순
+      rating:desc: 평점순
+    description: 정렬 옵션
+
+types:
+  Pagination:
+    fields:
+      page: { type: integer, default: 1 }
+      limit: { type: integer, default: 12 }
+      total: { type: integer }
+      total_pages: { type: integer }
+
+  FileUpload:
+    fields:
+      file: { type: binary }
+      max_size: { type: integer, value: 10485760 }  # 10MB
+      allowed_types: { type: string[], value: [image/jpeg, image/png, image/webp] }
+
+  ErrorResponse:
+    fields:
+      code: { type: string }
+      message: { type: string }
+      details: { type: object, nullable: true }

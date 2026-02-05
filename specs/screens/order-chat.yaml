@@ -1,0 +1,89 @@
+version: "2.0"
+
+screen:
+  name: 주문별 채팅방
+  route: /orders/:id/chat
+  layout: full-width
+  auth: true
+  roles: [brand, creator]
+
+data_requirements:
+  - resource: orders
+    needs: [id, order_number, model, status, package_type]
+    filters: { id: ":id" }
+
+  - resource: chat_messages
+    needs: [id, message, attachment_url, is_read, sender, created_at]
+    filters: { order_id: ":id", sort: "created_at:asc" }
+
+  - resource: delivery_files
+    needs: [id, file_url, file_name, file_size]
+    filters: { order_id: ":id" }
+
+components:
+  - id: order_summary
+    type: summary-card
+    position: header
+    function: 주문 정보 요약 표시 (주문 번호, 모델 이름, 상태)
+    data_source:
+      resource: orders
+
+  - id: message_list
+    type: list
+    position: main
+    function: 채팅 메시지 목록 (시간순, 발신자/수신자 구분)
+    data_source:
+      resource: chat_messages
+    events:
+      - on: click:attachment
+        do: 첨부 파일 다운로드 또는 이미지 미리보기
+
+  - id: message_input
+    type: form
+    position: footer
+    function: 메시지 입력 + 파일 첨부 + 전송
+    events:
+      - on: submit
+        do: WebSocket으로 메시지 전송
+      - on: click:attach
+        do: 파일 선택 다이얼로그 표시
+      - on: keydown:enter
+        do: 메시지 전송 (Shift+Enter는 줄바꿈)
+
+connections:
+  navigations:
+    - from: order_summary
+      to: /dashboard/brand
+    - from: order_summary
+      to: /dashboard/creator
+  shared_components:
+    - header
+  external:
+    - websocket
+
+tests:
+  - name: 초기 로드
+    when: /orders/:id/chat 접속
+    then:
+      - 주문 요약 정보 표시
+      - 기존 메시지 시간순 로드
+      - 메시지 입력창 표시
+
+  - name: 메시지 전송
+    when: 텍스트 입력 후 전송 클릭
+    then:
+      - 메시지 목록에 즉시 추가 (Optimistic UI)
+      - WebSocket으로 실시간 전달
+
+  - name: 파일 첨부
+    when: 이미지 파일 첨부 후 전송
+    then:
+      - 파일 업로드 진행 표시
+      - 메시지에 이미지 썸네일 표시
+
+  - name: 실시간 수신
+    when: 상대방이 메시지 전송
+    then:
+      - WebSocket으로 실시간 수신
+      - 메시지 목록에 자동 추가
+      - 읽음 상태 자동 업데이트

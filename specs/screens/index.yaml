@@ -1,0 +1,90 @@
+# 화면 목록 인덱스
+# AI Model Marketplace - 총 10개 화면
+
+version: "2.0"
+
+screens:
+  - id: S-01
+    name: 랜딩/홈
+    file: home.yaml
+    route: /
+    auth: false
+    features: [FEAT-0, FEAT-1]
+
+  - id: S-02
+    name: 로그인
+    file: login.yaml
+    route: /auth/login
+    auth: false
+    features: [FEAT-0]
+
+  - id: S-03
+    name: 회원가입
+    file: signup.yaml
+    route: /auth/signup
+    auth: false
+    features: [FEAT-0]
+
+  - id: S-04
+    name: 모델 탐색
+    file: explore.yaml
+    route: /explore
+    auth: false
+    features: [FEAT-1]
+
+  - id: S-05
+    name: 모델 프로필 상세
+    file: model-profile.yaml
+    route: /models/:id
+    auth: false
+    features: [FEAT-1]
+
+  - id: S-06
+    name: 섭외 Wizard
+    file: booking-wizard.yaml
+    route: /booking/new
+    auth: true
+    roles: [brand]
+    features: [FEAT-2]
+
+  - id: S-07
+    name: 브랜드 대시보드
+    file: brand-dashboard.yaml
+    route: /dashboard/brand
+    auth: true
+    roles: [brand]
+    features: [FEAT-3]
+
+  - id: S-08
+    name: 크리에이터 대시보드
+    file: creator-dashboard.yaml
+    route: /dashboard/creator
+    auth: true
+    roles: [creator]
+    features: [FEAT-3]
+
+  - id: S-09
+    name: AI 모델 등록
+    file: model-registration.yaml
+    route: /models/new
+    auth: true
+    roles: [creator]
+    features: [FEAT-3]
+
+  - id: S-10
+    name: 주문별 채팅방
+    file: order-chat.yaml
+    route: /orders/:id/chat
+    auth: true
+    roles: [brand, creator]
+    features: [FEAT-3]
+
+summary:
+  total: 10
+  public: 5
+  auth_required: 5
+  features:
+    FEAT-0: [S-01, S-02, S-03]
+    FEAT-1: [S-01, S-04, S-05]
+    FEAT-2: [S-06]
+    FEAT-3: [S-07, S-08, S-09, S-10]

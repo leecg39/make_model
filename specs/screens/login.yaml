@@ -1,0 +1,62 @@
+version: "2.0"
+
+screen:
+  name: 로그인
+  route: /auth/login
+  layout: full-width
+  auth: false
+
+data_requirements:
+  - resource: users
+    needs: [email, role]
+    auth_required: false
+
+components:
+  - id: login_form
+    type: form
+    position: main
+    function: 이메일/비밀번호 로그인 폼
+    events:
+      - on: submit
+        do: 로그인 API 호출 → 성공 시 역할별 대시보드로 이동
+      - on: click:social_google
+        do: Google OAuth 로그인
+      - on: click:social_kakao
+        do: Kakao OAuth 로그인
+      - on: click:signup
+        do: /auth/signup으로 이동
+
+connections:
+  navigations:
+    - from: login_form
+      to: /dashboard/brand
+    - from: login_form
+      to: /dashboard/creator
+    - from: login_form
+      to: /auth/signup
+  shared_components:
+    - header
+    - footer
+  external:
+    - auth
+
+tests:
+  - name: 이메일 로그인 성공
+    when: 유효한 이메일/비밀번호 입력 후 로그인 클릭
+    then:
+      - 역할에 따라 /dashboard/brand 또는 /dashboard/creator로 이동
+
+  - name: 로그인 실패
+    when: 잘못된 비밀번호로 로그인 시도
+    then:
+      - 에러 메시지 표시 ("이메일 또는 비밀번호가 올바르지 않습니다")
+
+  - name: 소셜 로그인 (신규)
+    when: Google 소셜 로그인 (최초)
+    then:
+      - /auth/signup으로 이동 (역할 선택 필요)
+
+  - name: 회원가입 이동
+    when: "회원가입" 링크 클릭
+    then:
+      - /auth/signup으로 이동

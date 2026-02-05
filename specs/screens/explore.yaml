@@ -1,0 +1,96 @@
+version: "2.0"
+
+screen:
+  name: 모델 탐색
+  route: /explore
+  layout: sidebar-main
+  auth: false
+
+data_requirements:
+  - resource: ai_models
+    needs: [id, name, thumbnail_url, style, gender, age_range, rating, view_count, tags]
+    filters:
+      style: "?style"
+      gender: "?gender"
+      age_range: "?age_range"
+      sort: "?sort"
+      keyword: "?q"
+      page: "?page"
+
+  - resource: favorites
+    needs: [model_id]
+    auth_required: true
+
+components:
+  - id: search_bar
+    type: search-form
+    position: main
+    function: 키워드 검색
+    events:
+      - on: submit
+        do: 검색어로 모델 필터링, URL 파라미터 업데이트
+
+  - id: filter_sidebar
+    type: filter-form
+    position: sidebar
+    function: 복합 필터 (스타일/성별/나이대/정렬)
+    events:
+      - on: change:filter
+        do: 필터 적용, 목록 자동 업데이트, URL 파라미터 업데이트
+      - on: click:reset
+        do: 모든 필터 초기화
+
+  - id: model_grid
+    type: grid
+    position: main
+    function: 모델 카드 그리드 표시 (3-4열)
+    data_source:
+      resource: ai_models
+    events:
+      - on: click:card
+        do: /models/:id로 이동
+      - on: click:favorite
+        do: 로그인 체크 후 찜 토글
+
+  - id: pagination
+    type: navigation
+    position: main
+    function: 페이지네이션
+    events:
+      - on: click:page
+        do: 해당 페이지 로드, URL 업데이트
+
+connections:
+  navigations:
+    - from: model_grid
+      to: /models/:id
+  shared_components:
+    - header
+    - footer
+  external:
+    - auth
+
+tests:
+  - name: 초기 로드
+    when: /explore 접속
+    then:
+      - 전체 모델 그리드 표시
+      - 필터 사이드바 표시
+      - 검색바 표시
+
+  - name: 복합 필터링
+    when: 스타일=casual, 성별=female, 정렬=인기순 선택
+    then:
+      - URL이 ?style=casual&gender=female&sort=view_count로 변경
+      - 필터 조건에 맞는 모델만 표시
+
+  - name: 찜하기 (비로그인)
+    when: 비로그인 상태에서 찜하기 아이콘 클릭
+    then:
+      - 로그인 모달 표시
+
+  - name: 검색 결과 없음
+    when: "xyzxyz" 검색
+    then:
+      - 빈 상태 메시지 ("검색 결과가 없습니다")
+      - 필터 초기화 버튼 표시

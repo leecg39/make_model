@@ -1,0 +1,209 @@
+# Domain Resources - AI Model Marketplace
+# 화면 명세(specs/screens/*.yaml)에서 data_requirements.resource로 참조됩니다.
+
+resources:
+
+  # ─── FEAT-0: 인증/사용자 ───
+  users:
+    description: 사용자 (브랜드/크리에이터/관리자)
+    endpoints:
+      - method: POST
+        path: /api/auth/signup
+      - method: POST
+        path: /api/auth/login
+      - method: GET
+        path: /api/users/me
+      - method: PATCH
+        path: /api/users/me
+    fields:
+      id: { type: uuid, pk: true }
+      email: { type: string, unique: true }
+      nickname: { type: string }
+      role: { type: enum, values: [brand, creator, admin] }
+      profile_image: { type: string, nullable: true }
+      company_name: { type: string, nullable: true }
+      created_at: { type: datetime }
+
+  # ─── FEAT-1: AI 모델 ───
+  ai_models:
+    description: AI 인플루언서 모델
+    endpoints:
+      - method: GET
+        path: /api/models
+      - method: GET
+        path: /api/models/:id
+      - method: POST
+        path: /api/models
+      - method: PATCH
+        path: /api/models/:id
+    fields:
+      id: { type: uuid, pk: true }
+      creator_id: { type: uuid, fk: users }
+      name: { type: string }
+      description: { type: text, nullable: true }
+      style: { type: enum, values: [casual, formal, sporty, vintage] }
+      gender: { type: enum, values: [male, female, neutral] }
+      age_range: { type: enum, values: [10s, 20s, 30s, 40s+] }
+      view_count: { type: integer, default: 0 }
+      rating: { type: decimal, default: 0.0 }
+      status: { type: enum, values: [draft, active, inactive], default: draft }
+      thumbnail_url: { type: string, nullable: true }
+      tags: { type: string[], nullable: true }
+      images: { type: model_images[], nullable: true }
+      creator: { type: users, nullable: true }
+      created_at: { type: datetime }
+      updated_at: { type: datetime }
+
+  model_images:
+    description: AI 모델 포트폴리오 이미지
+    endpoints:
+      - method: POST
+        path: /api/models/:model_id/images
+    fields:
+      id: { type: uuid, pk: true }
+      model_id: { type: uuid, fk: ai_models }
+      image_url: { type: string }
+      display_order: { type: integer }
+      is_thumbnail: { type: boolean, default: false }
+
+  # ─── FEAT-1: 찜하기 ───
+  favorites:
+    description: 브랜드의 모델 찜 목록
+    endpoints:
+      - method: GET
+        path: /api/favorites
+      - method: POST
+        path: /api/favorites
+      - method: DELETE
+        path: /api/favorites/:model_id
+    fields:
+      id: { type: uuid, pk: true }
+      user_id: { type: uuid, fk: users }
+      model_id: { type: uuid, fk: ai_models }
+      created_at: { type: datetime }
+
+  # ─── FEAT-2: 섭외/주문 ───
+  orders:
+    description: 섭외 주문
+    endpoints:
+      - method: GET
+        path: /api/orders
+      - method: GET
+        path: /api/orders/:id
+      - method: POST
+        path: /api/orders
+      - method: PATCH
+        path: /api/orders/:id/status
+    fields:
+      id: { type: uuid, pk: true }
+      brand_id: { type: uuid, fk: users }
+      creator_id: { type: uuid, fk: users }
+      model_id: { type: uuid, fk: ai_models }
+      order_number: { type: string, unique: true }
+      concept_description: { type: text }
+      package_type: { type: enum, values: [basic, standard, premium] }
+      image_count: { type: integer }
+      is_exclusive: { type: boolean, default: false }
+      exclusive_months: { type: integer, nullable: true }
+      total_price: { type: integer }
+      status: { type: enum, values: [pending, accepted, in_progress, completed, cancelled] }
+      model: { type: ai_models, nullable: true }
+      brand: { type: users, nullable: true }
+      creator: { type: users, nullable: true }
+      accepted_at: { type: datetime, nullable: true }
+      completed_at: { type: datetime, nullable: true }
+      created_at: { type: datetime }
+
+  # ─── FEAT-2: AI 매칭 ───
+  ai_matching:
+    description: AI 콘셉트 기반 모델 추천
+    endpoints:
+      - method: POST
+        path: /api/matching/recommend
+    fields:
+      concept_description: { type: text }
+      reference_images: { type: string[], nullable: true }
+      recommended_models: { type: ai_models[] }
+      match_scores: { type: decimal[] }
+
+  # ─── FEAT-2: 결제 ───
+  payments:
+    description: 포트원 결제 정보
+    endpoints:
+      - method: POST
+        path: /api/payments
+      - method: GET
+        path: /api/payments/:order_id
+    fields:
+      id: { type: uuid, pk: true }
+      order_id: { type: uuid, fk: orders }
+      payment_provider: { type: string, default: portone }
+      payment_method: { type: enum, values: [card, transfer] }
+      amount: { type: integer }
+      status: { type: enum, values: [pending, completed, failed, refunded] }
+      transaction_id: { type: string, nullable: true }
+      paid_at: { type: datetime, nullable: true }
+
+  # ─── FEAT-3: 납품 파일 ───
+  delivery_files:
+    description: 주문 납품 파일
+    endpoints:
+      - method: GET
+        path: /api/orders/:order_id/files
+      - method: POST
+        path: /api/orders/:order_id/files
+    fields:
+      id: { type: uuid, pk: true }
+      order_id: { type: uuid, fk: orders }
+      file_url: { type: string }
+      file_name: { type: string }
+      file_size: { type: integer }
+      uploaded_at: { type: datetime }
+
+  # ─── FEAT-3: 채팅 ───
+  chat_messages:
+    description: 주문별 채팅 메시지
+    endpoints:
+      - method: GET
+        path: /api/orders/:order_id/messages
+      - method: POST
+        path: /api/orders/:order_id/messages
+    fields:
+      id: { type: uuid, pk: true }
+      order_id: { type: uuid, fk: orders }
+      sender_id: { type: uuid, fk: users }
+      message: { type: text }
+      attachment_url: { type: string, nullable: true }
+      is_read: { type: boolean, default: false }
+      sender: { type: users, nullable: true }
+      created_at: { type: datetime }
+
+  # ─── FEAT-3: 정산 ───
+  settlements:
+    description: 크리에이터 수익 정산
+    endpoints:
+      - method: GET
+        path: /api/settlements
+      - method: GET
+        path: /api/settlements/:id
+    fields:
+      id: { type: uuid, pk: true }
+      creator_id: { type: uuid, fk: users }
+      order_id: { type: uuid, fk: orders }
+      total_amount: { type: integer }
+      platform_fee: { type: integer }
+      settlement_amount: { type: integer }
+      status: { type: enum, values: [pending, completed] }
+      completed_at: { type: datetime, nullable: true }
+      created_at: { type: datetime }
+
+  # ─── 통계 ───
+  platform_stats:
+    description: 플랫폼 통계 (홈 화면용)
+    endpoints:
+      - method: GET
+        path: /api/stats
+    fields:
+      total_models: { type: integer }
+      total_bookings: { type: integer }
+      total_brands: { type: integer }

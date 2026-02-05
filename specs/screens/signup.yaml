@@ -1,0 +1,62 @@
+version: "2.0"
+
+screen:
+  name: 회원가입
+  route: /auth/signup
+  layout: full-width
+  auth: false
+
+data_requirements:
+  - resource: users
+    needs: [email, nickname, role, company_name]
+    auth_required: false
+
+components:
+  - id: signup_form
+    type: form
+    position: main
+    function: 회원가입 폼 (역할 선택 + 기본 정보 입력)
+    events:
+      - on: change:role
+        do: 브랜드 선택 시 회사명 필드 표시
+      - on: submit
+        do: 회원가입 API 호출 → 성공 시 역할별 대시보드로 이동
+      - on: click:login
+        do: /auth/login으로 이동
+
+connections:
+  navigations:
+    - from: signup_form
+      to: /dashboard/brand
+    - from: signup_form
+      to: /dashboard/creator
+    - from: signup_form
+      to: /auth/login
+  shared_components:
+    - header
+    - footer
+  external:
+    - auth
+
+tests:
+  - name: 브랜드 회원가입
+    when: 브랜드 역할 선택 후 모든 필드 입력, 가입하기 클릭
+    then:
+      - 회사명 필드 표시됨
+      - 가입 성공 후 /dashboard/brand로 이동
+
+  - name: 크리에이터 회원가입
+    when: 크리에이터 역할 선택 후 모든 필드 입력, 가입하기 클릭
+    then:
+      - 회사명 필드 숨김
+      - 가입 성공 후 /dashboard/creator로 이동
+
+  - name: 유효성 검사 실패
+    when: 비밀번호 7자로 입력
+    then:
+      - 에러 메시지 표시 ("비밀번호는 8자 이상이어야 합니다")
+
+  - name: 이메일 중복
+    when: 이미 가입된 이메일로 가입 시도
+    then:
+      - 에러 메시지 표시 ("이미 사용 중인 이메일입니다")

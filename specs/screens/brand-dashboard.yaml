@@ -1,0 +1,96 @@
+version: "2.0"
+
+screen:
+  name: 브랜드 대시보드
+  route: /dashboard/brand
+  layout: dashboard
+  auth: true
+  roles: [brand]
+
+data_requirements:
+  - resource: orders
+    needs: [id, order_number, model, package_type, status, total_price, created_at]
+    filters: { brand_id: "me", sort: "created_at:desc" }
+
+  - resource: favorites
+    needs: [model_id]
+    auth_required: true
+
+  - resource: delivery_files
+    needs: [id, file_url, file_name, file_size, uploaded_at]
+    auth_required: true
+
+components:
+  - id: dashboard_nav
+    type: navigation
+    position: sidebar
+    function: 대시보드 네비게이션 (주문 관리, 찜 목록, 프로필 설정)
+    events:
+      - on: click:tab
+        do: 해당 탭 콘텐츠 표시
+
+  - id: order_table
+    type: table
+    position: main
+    function: 주문 목록 테이블 (번호, 모델명, 패키지, 상태, 금액, 주문일)
+    data_source:
+      resource: orders
+    events:
+      - on: click:row
+        do: 주문 상세 모달 표시
+      - on: click:chat
+        do: /orders/:id/chat으로 이동
+      - on: click:download
+        do: 납품 파일 다운로드 (완료 상태만)
+
+  - id: order_detail_modal
+    type: modal
+    position: overlay
+    function: 주문 상세 정보 (상태, 모델 정보, 예상 완료일)
+    data_source:
+      resource: orders
+    events:
+      - on: click:close
+        do: 모달 닫기
+
+  - id: empty_state
+    type: section
+    position: main
+    function: 주문 없을 때 빈 상태 표시
+    events:
+      - on: click:explore
+        do: /explore로 이동
+
+connections:
+  navigations:
+    - from: order_table
+      to: /orders/:id/chat
+    - from: order_table
+      to: /models/:id
+    - from: empty_state
+      to: /explore
+  shared_components:
+    - header
+
+tests:
+  - name: 초기 로드
+    when: 브랜드 로그인 후 대시보드 접속
+    then:
+      - 사이드바 네비게이션 표시
+      - 주문 목록 테이블 표시
+
+  - name: 주문 없음
+    when: 주문 내역이 없는 브랜드 접속
+    then:
+      - 빈 상태 메시지 ("아직 주문 내역이 없습니다")
+      - "AI 모델 찾아보기" CTA 표시
+
+  - name: 파일 다운로드
+    when: 완료된 주문의 "다운로드" 클릭
+    then:
+      - 납품 파일 다운로드 시작
+
+  - name: 채팅 이동
+    when: 주문의 "채팅" 버튼 클릭
+    then:
+      - /orders/:id/chat으로 이동

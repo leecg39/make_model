@@ -1,0 +1,91 @@
+# 공통 컴포넌트 정의
+# 모든 화면에서 재사용되는 공통 컴포넌트
+
+version: "2.0"
+
+shared_components:
+
+  # ─── 글로벌 레이아웃 ───
+  header:
+    type: navigation
+    position: header
+    function: 글로벌 헤더 (로고, 네비게이션, 사용자 메뉴)
+    used_in: [all]
+    elements:
+      - logo: 좌측 상단, 클릭 시 / 이동
+      - nav_explore: "모델 탐색" → /explore
+      - nav_register: "모델 등록" → /models/new (크리에이터) 또는 /auth/login (비로그인)
+      - user_menu_guest: 비로그인 시 "로그인", "회원가입"
+      - user_menu_auth: 로그인 시 프로필 이미지 드롭다운 (대시보드, 로그아웃)
+    events:
+      - on: click:logo
+        do: / 이동
+      - on: click:nav_item
+        do: 해당 경로로 이동
+      - on: click:logout
+        do: 로그아웃 → / 이동
+
+  footer:
+    type: section
+    position: footer
+    function: 글로벌 푸터 (회사 정보, 이용약관, 개인정보처리방침)
+    used_in: [home, login, signup, explore, model-profile]
+    elements:
+      - company_info: 회사명, 사업자번호
+      - links: 이용약관, 개인정보처리방침
+      - contact: 고객센터 이메일
+
+  # ─── 재사용 컴포넌트 ───
+  model_card:
+    type: card
+    function: AI 모델 카드 (썸네일 3:4, 이름, 스타일 태그, 평점, 찜 아이콘)
+    used_in: [home, explore, model-profile, creator-dashboard, booking-wizard]
+    data_source:
+      resource: ai_models
+      needs: [id, name, thumbnail_url, style, rating]
+    events:
+      - on: click:card
+        do: /models/:id로 이동
+      - on: click:favorite
+        do: 로그인 체크 후 찜 토글
+
+  status_badge:
+    type: text
+    function: 주문 상태 배지 (pending/accepted/in_progress/completed/cancelled)
+    used_in: [brand-dashboard, creator-dashboard, order-chat]
+    variants:
+      pending: { color: warning, label: 접수 }
+      accepted: { color: info, label: 수락 }
+      in_progress: { color: primary, label: 진행중 }
+      completed: { color: success, label: 완료 }
+      cancelled: { color: error, label: 취소 }
+
+  login_modal:
+    type: modal
+    function: 로그인 필요 안내 모달 (비로그인 시 인증 필요한 액션 실행 시)
+    used_in: [home, explore, model-profile]
+    events:
+      - on: click:login
+        do: /auth/login으로 이동
+      - on: click:close
+        do: 모달 닫기
+
+  empty_state:
+    type: section
+    function: 빈 상태 표시 (일러스트 + 메시지 + CTA)
+    used_in: [brand-dashboard, creator-dashboard, explore]
+    variants:
+      no_orders_brand: { message: "아직 주문 내역이 없습니다", cta: "AI 모델 찾아보기" }
+      no_orders_creator: { message: "새로운 주문이 들어오면 알려드릴게요", cta: "내 모델 등록하기" }
+      no_models: { message: "등록된 모델이 없습니다", cta: "첫 번째 모델 등록하기" }
+      no_search_results: { message: "검색 결과가 없습니다", cta: "필터 초기화" }
+      no_messages: { message: "아직 메시지가 없습니다", cta: null }
+
+  toast:
+    type: toast
+    function: 토스트 알림 (성공/에러/정보)
+    used_in: [all]
+    variants:
+      success: { color: success, icon: check, duration: 3000 }
+      error: { color: error, icon: x, duration: 5000 }
+      info: { color: info, icon: info, duration: 3000 }
