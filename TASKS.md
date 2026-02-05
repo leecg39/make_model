@@ -285,7 +285,7 @@ flowchart TD
 
 ### P2-R1: AI Models Resource
 
-#### [ ] P2-R1-T1: AI Models API 구현
+#### [x] P2-R1-T1: AI Models API 구현
 - **담당**: backend-specialist
 - **리소스**: ai_models, model_images, model_tags
 - **엔드포인트**:
@@ -304,7 +304,7 @@ flowchart TD
 
 ### P2-R2: Favorites Resource
 
-#### [ ] P2-R2-T1: Favorites API 구현
+#### [x] P2-R2-T1: Favorites API 구현
 - **담당**: backend-specialist
 - **리소스**: favorites
 - **인증**: 필수 (auth_required: true)
@@ -322,7 +322,7 @@ flowchart TD
 
 ### P2-R3: Platform Stats Resource
 
-#### [ ] P2-R3-T1: Platform Stats API 구현
+#### [x] P2-R3-T1: Platform Stats API 구현
 - **담당**: backend-specialist
 - **리소스**: platform_stats
 - **엔드포인트**:
@@ -339,7 +339,7 @@ flowchart TD
 
 ### P2-S1: 홈 화면
 
-#### [ ] P2-S1-T1: 홈 UI 구현
+#### [x] P2-S1-T1: 홈 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /
 - **컴포넌트**: HeroSection, PopularModelsGrid, RecentModelsGrid, StatsSection
@@ -352,7 +352,7 @@ flowchart TD
 - **데모 상태**: loading, normal, few-models
 - **의존**: P2-R1-T1, P2-R3-T1, P1-S0-T1
 
-#### [ ] P2-S1-T2: 홈 통합 테스트
+#### [x] P2-S1-T2: 홈 통합 테스트
 - **담당**: test-specialist
 - **화면**: /
 - **시나리오**:
@@ -365,7 +365,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/home.spec.ts`
 - **의존**: P2-S1-T1
 
-#### [ ] P2-S1-V: 연결점 검증
+#### [x] P2-S1-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /
 - **검증 항목**:
@@ -382,7 +382,7 @@ flowchart TD
 
 ### P2-S2: 모델 탐색 화면
 
-#### [ ] P2-S2-T1: 모델 탐색 UI 구현
+#### [x] P2-S2-T1: 모델 탐색 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /explore
 - **컴포넌트**: SearchBar, FilterSidebar, ModelGrid, Pagination
@@ -395,7 +395,7 @@ flowchart TD
 - **데모 상태**: loading, normal, filtered, empty, error
 - **의존**: P2-R1-T1, P2-R2-T1, P1-S0-T1
 
-#### [ ] P2-S2-T2: 모델 탐색 통합 테스트
+#### [x] P2-S2-T2: 모델 탐색 통합 테스트
 - **담당**: test-specialist
 - **화면**: /explore
 - **시나리오**:
@@ -408,7 +408,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/explore.spec.ts`
 - **의존**: P2-S2-T1
 
-#### [ ] P2-S2-V: 연결점 검증
+#### [x] P2-S2-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /explore
 - **검증 항목**:
@@ -424,7 +424,7 @@ flowchart TD
 
 ### P2-S3: 모델 프로필 상세 화면
 
-#### [ ] P2-S3-T1: 모델 프로필 UI 구현
+#### [x] P2-S3-T1: 모델 프로필 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /models/:id
 - **컴포넌트**: ModelHeader, PortfolioGallery, CreatorInfo, ImageLightbox
@@ -437,7 +437,7 @@ flowchart TD
 - **데모 상태**: loading, normal, few-images
 - **의존**: P2-R1-T1, P2-R2-T1, P1-S0-T1
 
-#### [ ] P2-S3-T2: 모델 프로필 통합 테스트
+#### [x] P2-S3-T2: 모델 프로필 통합 테스트
 - **담당**: test-specialist
 - **화면**: /models/:id
 - **시나리오**:
@@ -450,7 +450,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/model-profile.spec.ts`
 - **의존**: P2-S3-T1
 
-#### [ ] P2-S3-V: 연결점 검증
+#### [x] P2-S3-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /models/:id
 - **검증 항목**:
@@ -467,7 +467,7 @@ flowchart TD
 
 ### P3-R1: AI Matching Resource
 
-#### [ ] P3-R1-T1: AI Matching API 구현
+#### [x] P3-R1-T1: AI Matching API 구현
 - **담당**: backend-specialist
 - **리소스**: ai_matching
 - **엔드포인트**:
@@ -482,7 +482,7 @@ flowchart TD
 
 ### P3-R2: Orders Resource
 
-#### [ ] P3-R2-T1: Orders API 구현
+#### [x] P3-R2-T1: Orders API 구현
 - **담당**: backend-specialist
 - **리소스**: orders
 - **인증**: 필수
@@ -501,7 +501,7 @@ flowchart TD
 
 ### P3-R3: Payments Resource
 
-#### [ ] P3-R3-T1: Payments API 구현
+#### [x] P3-R3-T1: Payments API 구현
 - **담당**: backend-specialist
 - **리소스**: payments
 - **인증**: 필수
@@ -520,7 +520,7 @@ flowchart TD
 
 ### P3-S1: 섭외 Wizard 화면
 
-#### [ ] P3-S1-T1: 섭외 Wizard UI 구현
+#### [x] P3-S1-T1: 섭외 Wizard UI 구현
 - **담당**: frontend-specialist
 - **화면**: /booking/new
 - **컴포넌트**: WizardStepper, Step1ConceptForm, Step2Recommendation, Step3PackagePayment, PaymentSuccessModal
@@ -533,7 +533,7 @@ flowchart TD
 - **데모 상태**: step1, step2-loading, step2-results, step3-package, payment-success, payment-error
 - **의존**: P3-R1-T1, P3-R2-T1, P3-R3-T1, P1-S0-T1
 
-#### [ ] P3-S1-T2: 섭외 Wizard 통합 테스트
+#### [x] P3-S1-T2: 섭외 Wizard 통합 테스트
 - **담당**: test-specialist
 - **화면**: /booking/new
 - **시나리오**:
@@ -546,7 +546,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/booking-wizard.spec.ts`
 - **의존**: P3-S1-T1
 
-#### [ ] P3-S1-V: 연결점 검증
+#### [x] P3-S1-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /booking/new
 - **검증 항목**:
