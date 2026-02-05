@@ -270,6 +270,9 @@ async def update_order_status(
         order.accepted_at = now
     elif new_status == "completed":
         order.completed_at = now
+        # @TASK P4-R3-T1 - Auto-create settlement on order completion
+        from app.services.settlement import create_settlement_for_order
+        await create_settlement_for_order(db, order)
 
     await db.commit()
     await db.refresh(order)
