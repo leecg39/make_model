@@ -1,11 +1,12 @@
 """User model for authentication and user management.
 
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
+@TASK P1-R1-T1 - Auth/Users API (is_active, hashed_password alias)
 @SPEC docs/planning/04-database-design.md#user-사용자---feat-0
 """
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, DateTime, Index
+from sqlalchemy import Boolean, String, DateTime, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 import uuid
@@ -34,6 +35,9 @@ class User(Base):
     company_name: Mapped[Optional[str]] = mapped_column(
         String(100), nullable=True
     )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False
     )
@@ -43,6 +47,15 @@ class User(Base):
     deleted_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True
     )
+
+    # Property alias: services use hashed_password, column is password_hash
+    @property
+    def hashed_password(self) -> Optional[str]:
+        return self.password_hash
+
+    @hashed_password.setter
+    def hashed_password(self, value: str) -> None:
+        self.password_hash = value
 
     # Relationships
     auth_tokens = relationship("AuthToken", back_populates="user", cascade="all, delete-orphan")

@@ -80,4 +80,23 @@ make_model/
 
 ## Lessons Learned
 
-(Auto-updated during development)
+### [2026-02-05] bcrypt 5.0 + passlib 1.7.4 incompatibility (bcrypt, passlib, password-hashing)
+- **상황**: 회원가입 시 비밀번호 해싱 시도
+- **문제**: `ValueError: password cannot be longer than 72 bytes, truncate manually if necessary`
+- **원인**: bcrypt 4.1+ changed its API (`checkpw`/`hashpw` signature). passlib 1.7.4 is unmaintained and doesn't handle this correctly.
+- **해결**: Replaced passlib.context with direct `bcrypt.checkpw()` / `bcrypt.hashpw()` calls in `app/core/security.py`.
+- **교훈**: When bcrypt>=4.1, avoid passlib. Use bcrypt directly or pin `bcrypt<4.1`.
+
+### [2026-02-05] httpx 0.28+ removed `app` parameter from AsyncClient (httpx, testing, ASGI)
+- **상황**: pytest에서 httpx AsyncClient로 FastAPI 앱 테스트
+- **문제**: `TypeError: __init__() got an unexpected keyword argument 'app'`
+- **원인**: httpx 0.28+ moved ASGI app support to `ASGITransport`.
+- **해결**: `AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver")`
+- **교훈**: httpx 0.28+에서는 반드시 `ASGITransport`를 사용해야 함.
+
+### [2026-02-05] User model column name vs service attribute mismatch (SQLAlchemy, ORM, naming)
+- **상황**: Bootstrap 코드에서 User model은 `password_hash` 컬럼, 서비스는 `hashed_password` 속성 사용
+- **문제**: `AttributeError` when accessing `user.hashed_password`
+- **원인**: Model column과 service/deps 코드의 속성명 불일치
+- **해결**: User model에 `@property hashed_password` + setter 추가하여 양쪽 호환
+- **교훈**: Model 컬럼명과 서비스 코드 속성명 일치 여부를 Phase 0에서 반드시 확인

@@ -1,7 +1,10 @@
-"""User schemas."""
+# @TASK P1-R1-T1 - User schemas (extended with role, company_name)
+# @SPEC docs/planning/02-trd.md#user-resource
+"""User schemas for request/response serialization."""
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserBase(BaseModel):
@@ -17,16 +20,20 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     nickname: Optional[str] = None
     profile_image: Optional[str] = None
+    company_name: Optional[str] = None
 
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
+    """Public user representation returned by the API."""
     id: str
-    is_active: bool
+    email: str
+    nickname: str
+    role: str
+    profile_image: Optional[str] = None
+    company_name: Optional[str] = None
     created_at: datetime
-    updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserInDB(UserResponse):

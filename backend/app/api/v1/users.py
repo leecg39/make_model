@@ -1,3 +1,5 @@
+# @TASK P1-R1-T1 - User profile endpoints (GET/PATCH/DELETE me)
+# @SPEC docs/planning/02-trd.md#user-resource
 """User endpoints."""
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
