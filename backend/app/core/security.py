@@ -1,6 +1,6 @@
 """Security utilities for authentication."""
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional, Union
 from jose import jwt
 from passlib.context import CryptContext
 from app.core.config import settings
@@ -11,7 +11,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 
-def create_access_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
+def create_access_token(subject: Union[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     """Create JWT access token."""
     if expires_delta:
         expire = datetime.utcnow() + expires_delta

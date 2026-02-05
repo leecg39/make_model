@@ -1,4 +1,6 @@
 """Authentication schemas."""
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -8,7 +10,7 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: str | None = None
+    sub: Optional[str] = None
 
 
 class LoginRequest(BaseModel):

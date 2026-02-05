@@ -6,6 +6,21 @@ from alembic import context
 from app.db.base import Base
 from app.core.config import settings
 
+# Import all models to ensure they are registered with Base.metadata
+from app.models import (
+    User,
+    AuthToken,
+    AIModel,
+    ModelImage,
+    ModelTag,
+    Favorite,
+    Order,
+    Payment,
+    DeliveryFile,
+    ChatMessage,
+    Settlement,
+)
+
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 

@@ -115,7 +115,7 @@ flowchart TD
 
 ## Phase 0: 프로젝트 셋업
 
-### [ ] P0-T0.1: 프로젝트 초기화
+### [x] P0-T0.1: 프로젝트 초기화
 - **담당**: frontend-specialist
 - **스펙**: Next.js + FastAPI 모노레포 구조 생성
 - **파일**:
@@ -128,7 +128,7 @@ flowchart TD
   - [ ] `uvicorn main:app` (backend) 정상 실행
   - [ ] Docker Compose로 PostgreSQL 연결
 
-### [ ] P0-T0.2: DB 스키마 및 마이그레이션
+### [x] P0-T0.2: DB 스키마 및 마이그레이션
 - **담당**: database-specialist
 - **스펙**: `docs/planning/04-database-design.md` 기반 Alembic 마이그레이션
 - **파일**: `backend/alembic/` → `backend/app/models/`
@@ -139,7 +139,7 @@ flowchart TD
   - [ ] `alembic upgrade head` 성공
   - [ ] 모든 테이블 생성 확인
 
-### [ ] P0-T0.3: 공통 설정 및 미들웨어
+### [x] P0-T0.3: 공통 설정 및 미들웨어
 - **담당**: backend-specialist
 - **스펙**: CORS, 에러 핸들링, 로깅, 환경변수 설정
 - **파일**: `tests/test_config.py` → `backend/app/core/config.py`, `backend/app/core/middleware.py`

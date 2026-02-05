@@ -1,43 +1,83 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-PDF 가이드북에서 AI 이미지 생성용 프롬프트와 참고 이미지를 추출하는 유틸리티 스크립트 모음입니다.
+**Make Model** - AI 인플루언서 마켓플레이스. 브랜드가 AI 패션모델/아이돌을 탐색하고 섭외하는 양면 플랫폼.
+
+## Tech Stack
+
+- **Backend**: FastAPI (Python 3.11+) + SQLAlchemy 2.0 async + Alembic + asyncpg + JWT
+- **Frontend**: Next.js 14+ (App Router) + TypeScript + TailwindCSS + Zustand + Framer Motion
+- **Database**: PostgreSQL 15+ + Redis 7
+- **Payment**: PortOne (한국 PG)
+- **Real-time**: WebSocket (Socket.IO)
 
 ## Commands
 
 ```bash
-# PDF에서 이미지 추출 (PyMuPDF 필요)
-python extract_images.py
+# Backend
+cd backend && source venv/bin/activate
+uvicorn app.main:app --reload --port 8000
+pytest tests/ -v
 
-# PDF에서 프롬프트 추출
-python extract_prompts.py
+# Frontend
+cd frontend
+npm run dev    # http://localhost:3000
+npm run build
+npm run test
+
+# Database
+docker compose up -d            # PostgreSQL + Redis 시작
+docker compose down             # 중지
+cd backend && alembic upgrade head  # 마이그레이션 실행
+
+# Git Worktree (Phase 1+)
+git worktree add worktree/phase-N-name -b phase-N-name
+git worktree list
 ```
-
-## Dependencies
-
-- PyMuPDF (`fitz`): `pip install pymupdf`
 
 ## Architecture
 
-### 추출 스크립트
-- `extract_images.py`: PDF에서 이미지를 추출하여 크기 기준으로 분류 (600x600 이상 → 사진, 미만 → 이미지)
-- `extract_prompts.py`: PDF에서 "A "로 시작하고 "Korean woman"을 포함하는 텍스트를 프롬프트로 인식하여 추출
-
-### 출력 구조
-- `picture/model/`: 추출된 참고 이미지
-- `prompt/`: 추출된 프롬프트 (JSON 개별 파일 + all_prompts.json 통합 파일 + prompts.txt 텍스트 버전)
-
-### 프롬프트 JSON 스키마
-```json
-{
-  "id": 1,
-  "page": 2,
-  "prompt": "A seductive Korean woman...",
-  "category": "주방"
-}
+```
+make_model/
+├── backend/              # FastAPI
+│   ├── app/
+│   │   ├── api/v1/       # API routes
+│   │   ├── core/         # config, security, deps
+│   │   ├── db/           # session, base
+│   │   ├── models/       # SQLAlchemy models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   └── services/     # Business logic
+│   ├── alembic/          # DB migrations
+│   └── tests/
+├── frontend/             # Next.js
+│   └── src/
+│       ├── app/          # App Router pages
+│       ├── components/   # React components
+│       ├── hooks/        # Custom hooks
+│       ├── lib/          # Utilities
+│       ├── services/     # API clients
+│       ├── stores/       # Zustand stores
+│       └── types/        # TypeScript types
+├── specs/                # Screen specs (YAML)
+│   ├── domain/resources.yaml
+│   ├── screens/*.yaml
+│   └── shared/
+├── docs/planning/        # Planning docs (7 files)
+├── TASKS.md              # 56 tasks across P0-P4
+└── docker-compose.yml    # PostgreSQL + Redis
 ```
 
-카테고리는 프롬프트 내 장소 키워드(kitchen, cafe, pool 등)를 자동 감지하여 한글로 변환됩니다.
+## Key Conventions
+
+- TDD mandatory: RED → GREEN → REFACTOR
+- Domain-Guarded: screens declare needs, backend provides resources independently
+- Git Worktree: Phase 0 on main, Phase 1+ on separate worktrees
+- Anti-AI design: no Inter/Roboto fonts, no purple gradients
+- Korean UI text, English code/variable names
+
+## Lessons Learned
+
+(Auto-updated during development)
