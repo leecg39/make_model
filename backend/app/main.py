@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.v1 import auth, favorites, matching, models, orders, payments, stats, users
+from app.api.v1 import auth, chat, delivery, favorites, matching, models, orders, payments, settlements, stats, users
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestLoggingMiddleware, register_exception_handlers
@@ -61,6 +61,9 @@ app.include_router(stats.router, prefix=settings.API_V1_PREFIX)
 app.include_router(orders.router, prefix=settings.API_V1_PREFIX)
 app.include_router(matching.router, prefix=settings.API_V1_PREFIX)
 app.include_router(payments.router, prefix=settings.API_V1_PREFIX)
+app.include_router(delivery.router, prefix=settings.API_V1_PREFIX)
+app.include_router(chat.router, prefix=settings.API_V1_PREFIX)
+app.include_router(settlements.router, prefix=settings.API_V1_PREFIX)
 
 
 # ---------------------------------------------------------------------------
