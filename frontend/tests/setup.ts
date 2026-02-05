@@ -65,7 +65,7 @@ vi.mock('framer-motion', () => {
       get: (_target, prop) => {
         if (!motionComponents[prop as string]) {
           motionComponents[prop as string] = React.forwardRef((props: any, ref: any) => {
-            const { children, whileHover, whileTap, initial, animate, exit, transition, variants, ...rest } = props;
+            const { children, whileHover, whileTap, whileInView, initial, animate, exit, transition, variants, viewport, ...rest } = props;
             return React.createElement(prop as string, { ...rest, ref }, children);
           });
         }
@@ -95,6 +95,17 @@ vi.mock('@/lib/auth', () => ({
   },
 }));
 
+// Mock IntersectionObserver for whileInView support
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  takeRecords() {
+    return [];
+  }
+  unobserve() {}
+} as any;
+
 // Suppress console errors in tests (optional)
 const originalError = console.error;
 beforeAll(() => {
@@ -102,7 +113,8 @@ beforeAll(() => {
     if (
       typeof args[0] === 'string' &&
       (args[0].includes('Warning: ReactDOM.render') ||
-        args[0].includes('Not implemented: HTMLFormElement.prototype.submit'))
+        args[0].includes('Not implemented: HTMLFormElement.prototype.submit') ||
+        args[0].includes('whileInView'))
     ) {
       return;
     }
