@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.v1 import auth, users
+from app.api.v1 import auth, favorites, models, stats, users
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import RequestLoggingMiddleware, register_exception_handlers
@@ -55,6 +55,9 @@ register_exception_handlers(app)
 
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
+app.include_router(models.router, prefix=settings.API_V1_PREFIX)
+app.include_router(favorites.router, prefix=settings.API_V1_PREFIX)
+app.include_router(stats.router, prefix=settings.API_V1_PREFIX)
 
 
 # ---------------------------------------------------------------------------
