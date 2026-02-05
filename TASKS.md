@@ -567,7 +567,7 @@ flowchart TD
 
 ### P4-R1: Delivery Files Resource
 
-#### [ ] P4-R1-T1: Delivery Files API 구현
+#### [x] P4-R1-T1: Delivery Files API 구현
 - **담당**: backend-specialist
 - **리소스**: delivery_files
 - **인증**: 필수 (주문 당사자만)
@@ -584,7 +584,7 @@ flowchart TD
 
 ### P4-R2: Chat Messages Resource
 
-#### [ ] P4-R2-T1: Chat Messages API + WebSocket 구현
+#### [x] P4-R2-T1: Chat Messages API + WebSocket 구현
 - **담당**: backend-specialist
 - **리소스**: chat_messages
 - **인증**: 필수 (주문 당사자만)
@@ -602,7 +602,7 @@ flowchart TD
 
 ### P4-R3: Settlements Resource
 
-#### [ ] P4-R3-T1: Settlements API 구현
+#### [x] P4-R3-T1: Settlements API 구현
 - **담당**: backend-specialist
 - **리소스**: settlements
 - **인증**: 필수 (크리에이터만)
@@ -621,7 +621,7 @@ flowchart TD
 
 ### P4-S1: 브랜드 대시보드
 
-#### [ ] P4-S1-T1: 브랜드 대시보드 UI 구현
+#### [x] P4-S1-T1: 브랜드 대시보드 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /dashboard/brand
 - **컴포넌트**: DashboardNav, OrderTable, OrderDetailModal, EmptyState
@@ -634,7 +634,7 @@ flowchart TD
 - **데모 상태**: loading, empty, with-orders, order-detail
 - **의존**: P3-R2-T1, P4-R1-T1, P1-S0-T1
 
-#### [ ] P4-S1-T2: 브랜드 대시보드 통합 테스트
+#### [x] P4-S1-T2: 브랜드 대시보드 통합 테스트
 - **담당**: test-specialist
 - **시나리오**:
   | 이름 | When | Then |
@@ -646,7 +646,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/brand-dashboard.spec.ts`
 - **의존**: P4-S1-T1
 
-#### [ ] P4-S1-V: 연결점 검증
+#### [x] P4-S1-V: 연결점 검증
 - **담당**: test-specialist
 - **검증 항목**:
   - [ ] Field Coverage: orders.[id,order_number,model,package_type,status,total_price,created_at] 존재
@@ -661,7 +661,7 @@ flowchart TD
 
 ### P4-S2: 크리에이터 대시보드
 
-#### [ ] P4-S2-T1: 크리에이터 대시보드 UI 구현
+#### [x] P4-S2-T1: 크리에이터 대시보드 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /dashboard/creator
 - **컴포넌트**: DashboardNav, OrderTable (수락/거절/완료 액션), MyModelsGrid, SettlementSummary, RejectModal, UploadModal
@@ -674,7 +674,7 @@ flowchart TD
 - **데모 상태**: loading, empty-orders, with-orders, empty-models, settlement
 - **의존**: P3-R2-T1, P2-R1-T1, P4-R3-T1, P1-S0-T1
 
-#### [ ] P4-S2-T2: 크리에이터 대시보드 통합 테스트
+#### [x] P4-S2-T2: 크리에이터 대시보드 통합 테스트
 - **담당**: test-specialist
 - **시나리오**:
   | 이름 | When | Then |
@@ -686,7 +686,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/creator-dashboard.spec.ts`
 - **의존**: P4-S2-T1
 
-#### [ ] P4-S2-V: 연결점 검증
+#### [x] P4-S2-V: 연결점 검증
 - **담당**: test-specialist
 - **검증 항목**:
   - [ ] Field Coverage: orders.[id,order_number,brand,model,package_type,status,total_price,created_at] 존재
@@ -701,7 +701,7 @@ flowchart TD
 
 ### P4-S3: AI 모델 등록
 
-#### [ ] P4-S3-T1: AI 모델 등록 UI 구현
+#### [x] P4-S3-T1: AI 모델 등록 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /models/new
 - **컴포넌트**: RegistrationForm, ImageUploader, AIAutoGenerate, PreviewButton
@@ -714,7 +714,7 @@ flowchart TD
 - **데모 상태**: empty, uploading, ai-analyzing, ai-complete, preview
 - **의존**: P2-R1-T1, P1-S0-T1
 
-#### [ ] P4-S3-T2: AI 모델 등록 통합 테스트
+#### [x] P4-S3-T2: AI 모델 등록 통합 테스트
 - **담당**: test-specialist
 - **시나리오**:
   | 이름 | When | Then |
@@ -726,7 +726,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/model-registration.spec.ts`
 - **의존**: P4-S3-T1
 
-#### [ ] P4-S3-V: 연결점 검증
+#### [x] P4-S3-V: 연결점 검증
 - **담당**: test-specialist
 - **검증 항목**:
   - [ ] Field Coverage: ai_models.[name,description,style,gender,age_range,tags] 존재
@@ -742,7 +742,7 @@ flowchart TD
 
 ### P4-S4: 주문별 채팅방
 
-#### [ ] P4-S4-T1: 주문별 채팅방 UI 구현
+#### [x] P4-S4-T1: 주문별 채팅방 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /orders/:id/chat
 - **컴포넌트**: OrderSummary, MessageList, MessageInput
@@ -755,7 +755,7 @@ flowchart TD
 - **데모 상태**: loading, empty, messages, with-attachments
 - **의존**: P4-R2-T1, P4-R1-T1, P1-S0-T1
 
-#### [ ] P4-S4-T2: 채팅방 통합 테스트
+#### [x] P4-S4-T2: 채팅방 통합 테스트
 - **담당**: test-specialist
 - **시나리오**:
   | 이름 | When | Then |
@@ -767,7 +767,7 @@ flowchart TD
 - **파일**: `frontend/tests/e2e/order-chat.spec.ts`
 - **의존**: P4-S4-T1
 
-#### [ ] P4-S4-V: 연결점 검증
+#### [x] P4-S4-V: 연결점 검증
 - **담당**: test-specialist
 - **검증 항목**:
   - [ ] Field Coverage: chat_messages.[id,message,attachment_url,is_read,sender,created_at] 존재
@@ -783,7 +783,7 @@ flowchart TD
 
 ## Phase별 검증 요약
 
-### [ ] P1-V: Phase 1 연결점 검증 요약
+### [x] P1-V: Phase 1 연결점 검증 요약
 - **담당**: test-specialist
 - **검증 요약**:
   | 화면 | API | 네비게이션 | Auth | 공통 컴포넌트 |
@@ -792,7 +792,7 @@ flowchart TD
   | 회원가입 | 1 | 3 | 0 | 2 |
 - **의존**: P1-S1-V, P1-S2-V
 
-### [ ] P2-V: Phase 2 연결점 검증 요약
+### [x] P2-V: Phase 2 연결점 검증 요약
 - **담당**: test-specialist
 - **검증 요약**:
   | 화면 | API | 네비게이션 | Auth | 공통 컴포넌트 |
@@ -802,7 +802,7 @@ flowchart TD
   | 모델 프로필 | 1 | 1 | 1 | 2 |
 - **의존**: P2-S1-V, P2-S2-V, P2-S3-V
 
-### [ ] P3-V: Phase 3 연결점 검증 요약
+### [x] P3-V: Phase 3 연결점 검증 요약
 - **담당**: test-specialist
 - **검증 요약**:
   | 화면 | API | 네비게이션 | Auth |
@@ -810,7 +810,7 @@ flowchart TD
   | 섭외 Wizard | 3 | 1 | 1 |
 - **의존**: P3-S1-V
 
-### [ ] P4-V: Phase 4 연결점 검증 요약
+### [x] P4-V: Phase 4 연결점 검증 요약
 - **담당**: test-specialist
 - **검증 요약**:
   | 화면 | API | 네비게이션 | Auth | WebSocket |
