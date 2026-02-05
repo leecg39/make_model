@@ -1,8 +1,8 @@
 {
   "project": "make_model",
   "started_at": "2026-02-05T13:15:00+09:00",
-  "current_phase": null,
-  "completed_phases": [],
+  "current_phase": 1,
+  "completed_phases": [0],
   "failed_tasks": [],
   "slack_webhook_url": null,
   "mode": "normal"

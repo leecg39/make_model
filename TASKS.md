@@ -155,7 +155,7 @@ flowchart TD
 
 ### P1-R1: Auth/Users Resource
 
-#### [ ] P1-R1-T1: Auth/Users API 구현
+#### [x] P1-R1-T1: Auth/Users API 구현
 - **담당**: backend-specialist
 - **리소스**: users
 - **엔드포인트**:
@@ -177,7 +177,7 @@ flowchart TD
 
 ### P1-S0: 공통 레이아웃
 
-#### [ ] P1-S0-T1: 공통 레이아웃 구현
+#### [x] P1-S0-T1: 공통 레이아웃 구현
 - **담당**: frontend-specialist
 - **컴포넌트**:
   - Header (로고, 네비게이션, 사용자 메뉴)
@@ -198,7 +198,7 @@ flowchart TD
 
 ### P1-S1: 로그인 화면
 
-#### [ ] P1-S1-T1: 로그인 UI 구현
+#### [x] P1-S1-T1: 로그인 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /auth/login
 - **컴포넌트**: LoginForm (이메일/비밀번호, 소셜 로그인 버튼)
@@ -211,7 +211,7 @@ flowchart TD
 - **데모 상태**: default, error, loading
 - **의존**: P1-R1-T1, P1-S0-T1
 
-#### [ ] P1-S1-T2: 로그인 통합 테스트
+#### [x] P1-S1-T2: 로그인 통합 테스트
 - **담당**: test-specialist
 - **화면**: /auth/login
 - **시나리오**:
@@ -225,7 +225,7 @@ flowchart TD
 - **Worktree**: `worktree/phase-1-auth`
 - **의존**: P1-S1-T1
 
-#### [ ] P1-S1-V: 연결점 검증
+#### [x] P1-S1-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /auth/login
 - **검증 항목**:
@@ -241,7 +241,7 @@ flowchart TD
 
 ### P1-S2: 회원가입 화면
 
-#### [ ] P1-S2-T1: 회원가입 UI 구현
+#### [x] P1-S2-T1: 회원가입 UI 구현
 - **담당**: frontend-specialist
 - **화면**: /auth/signup
 - **컴포넌트**: SignupForm (역할 선택, 이메일, 비밀번호, 닉네임, 회사명)
@@ -254,7 +254,7 @@ flowchart TD
 - **데모 상태**: brand-role, creator-role, validation-error
 - **의존**: P1-R1-T1, P1-S0-T1
 
-#### [ ] P1-S2-T2: 회원가입 통합 테스트
+#### [x] P1-S2-T2: 회원가입 통합 테스트
 - **담당**: test-specialist
 - **화면**: /auth/signup
 - **시나리오**:
@@ -268,7 +268,7 @@ flowchart TD
 - **Worktree**: `worktree/phase-1-auth`
 - **의존**: P1-S2-T1
 
-#### [ ] P1-S2-V: 연결점 검증
+#### [x] P1-S2-V: 연결점 검증
 - **담당**: test-specialist
 - **화면**: /auth/signup
 - **검증 항목**:
