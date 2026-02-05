@@ -3,9 +3,32 @@ import { afterEach, vi, beforeAll, afterAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import React from 'react';
 
+// Mock localStorage for Zustand persist middleware
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+});
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();
+  localStorageMock.clear();
 });
 
 // Mock next/navigation with vi.fn() instances for mockReturnValue support
