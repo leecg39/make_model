@@ -6,6 +6,9 @@ export interface User {
   id: string;
   email: string;
   name: string | null;
+  nickname?: string | null;
+  role?: 'brand' | 'creator';
+  company_name?: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -19,6 +22,9 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name?: string;
+  nickname?: string;
+  role?: 'brand' | 'creator';
+  company_name?: string;
 }
 
 export interface AuthResponse {
