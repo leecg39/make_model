@@ -37,3 +37,6 @@ htmlcov/
 # Misc
 tmp/
 temp/
+
+# SQLite database
+*.db
