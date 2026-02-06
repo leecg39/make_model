@@ -1,4 +1,4 @@
-// @TASK P1-S1-T1 - Login page with social login
+// @TASK P1-S1-T1 - Login page with social login (ourcovers-inspired redesign)
 // @SPEC Phase 1 Login Screen
 'use client';
 
@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError, user } = useAuthStore();
+  const { login, isLoading, error, clearError } = useAuthStore();
   const { addToast } = useUIStore();
 
   const [formData, setFormData] = useState({
@@ -28,7 +28,6 @@ export default function LoginPage() {
     const errors = { email: '', password: '' };
     let isValid = true;
 
-    // Email validation
     if (!formData.email) {
       errors.email = '이메일을 입력하세요';
       isValid = false;
@@ -37,7 +36,6 @@ export default function LoginPage() {
       isValid = false;
     }
 
-    // Password validation
     if (!formData.password) {
       errors.password = '비밀번호를 입력하세요';
       isValid = false;
@@ -61,7 +59,6 @@ export default function LoginPage() {
     try {
       await login(formData);
 
-      // Role-based redirect
       const currentUser = useAuthStore.getState().user;
       if (currentUser?.role === 'brand') {
         router.push('/dashboard/brand');
@@ -71,7 +68,6 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: any) {
-      // Error is handled by store
       console.error('Login error:', err);
     }
   };
@@ -82,7 +78,6 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user types
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -99,21 +94,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#E882B2] rounded-full filter blur-[150px]" />
+        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-[#E882B2] rounded-full filter blur-[120px]" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-md w-full"
+        className="max-w-md w-full relative z-10"
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">로그인</h1>
-          <p className="text-sm text-gray-600">
+          <Link href="/" className="inline-block mb-6">
+            <span className="text-3xl font-bold">
+              <span className="text-white">MAKE</span>
+              <span className="text-[#E882B2]"> MODEL</span>
+            </span>
+          </Link>
+          <h1 className="text-2xl font-bold text-white mb-2">로그인</h1>
+          <p className="text-sm text-white/50">
             아직 계정이 없으신가요?{' '}
             <Link
               href="/auth/signup"
-              className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors"
+              className="font-semibold text-[#E882B2] hover:text-[#f598c4] transition-colors"
             >
               회원가입하기
             </Link>
@@ -121,15 +128,15 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-[#111] rounded-2xl border border-white/10 p-8 backdrop-blur-sm">
           {/* Global Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4"
+              className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4"
             >
-              <p className="text-sm text-red-800 font-medium">{error}</p>
+              <p className="text-sm text-red-400 font-medium">{error}</p>
             </motion.div>
           )}
 
@@ -137,7 +144,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-1.5">
                 이메일
               </label>
               <input
@@ -149,16 +156,17 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 className={`
-                  w-full px-4 py-2.5 rounded-lg border transition-colors
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                  ${formErrors.email ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
+                  w-full px-4 py-3 rounded-lg border transition-all duration-200
+                  bg-[#1a1a1a] text-white placeholder-white/30
+                  focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                  ${formErrors.email ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
                 `}
                 placeholder="이메일을 입력하세요"
                 aria-invalid={!!formErrors.email}
                 aria-describedby={formErrors.email ? 'email-error' : undefined}
               />
               {formErrors.email && (
-                <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-400">
                   {formErrors.email}
                 </p>
               )}
@@ -166,7 +174,7 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-1.5">
                 비밀번호
               </label>
               <input
@@ -178,16 +186,17 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className={`
-                  w-full px-4 py-2.5 rounded-lg border transition-colors
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                  ${formErrors.password ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
+                  w-full px-4 py-3 rounded-lg border transition-all duration-200
+                  bg-[#1a1a1a] text-white placeholder-white/30
+                  focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                  ${formErrors.password ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
                 `}
                 placeholder="비밀번호를 입력하세요 (최소 8자)"
                 aria-invalid={!!formErrors.password}
                 aria-describedby={formErrors.password ? 'password-error' : undefined}
               />
               {formErrors.password && (
-                <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-400">
                   {formErrors.password}
                 </p>
               )}
@@ -198,7 +207,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 disabled
-                className="text-sm text-gray-400 cursor-not-allowed"
+                className="text-sm text-white/30 cursor-not-allowed"
                 aria-disabled="true"
               >
                 비밀번호를 잊으셨나요?
@@ -209,14 +218,14 @@ export default function LoginPage() {
             <motion.button
               type="submit"
               disabled={isLoading}
-              whileHover={!isLoading ? { scale: 1.01 } : {}}
-              whileTap={!isLoading ? { scale: 0.99 } : {}}
+              whileHover={!isLoading ? { scale: 1.02, boxShadow: '0 0 30px rgba(232, 130, 178, 0.3)' } : {}}
+              whileTap={!isLoading ? { scale: 0.98 } : {}}
               className="
-                w-full py-3 px-4 rounded-lg font-semibold text-white
-                bg-indigo-600 hover:bg-indigo-700
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                w-full py-3.5 px-4 rounded-lg font-semibold text-black
+                bg-[#E882B2] hover:bg-[#f598c4]
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-[#E882B2]
                 disabled:opacity-50 disabled:cursor-not-allowed
-                transition-colors
+                transition-all duration-300
               "
               aria-busy={isLoading}
             >
@@ -253,10 +262,10 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">또는</span>
+              <span className="px-4 bg-[#111] text-white/40">또는</span>
             </div>
           </div>
 
@@ -270,9 +279,8 @@ export default function LoginPage() {
               whileTap={{ scale: 0.99 }}
               className="
                 w-full py-3 px-4 rounded-lg font-medium
-                bg-white border border-gray-300
-                hover:bg-gray-50 hover:border-gray-400
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500
+                bg-white hover:bg-gray-100
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-gray-500
                 transition-colors
                 flex items-center justify-center gap-3
               "
@@ -307,7 +315,7 @@ export default function LoginPage() {
               className="
                 w-full py-3 px-4 rounded-lg font-medium
                 bg-[#FEE500] hover:bg-[#FDD700]
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-yellow-500
                 transition-colors
                 flex items-center justify-center gap-3
               "
@@ -318,6 +326,16 @@ export default function LoginPage() {
               <span className="text-gray-900">카카오 계정으로 로그인</span>
             </motion.button>
           </div>
+        </div>
+
+        {/* Back to Home */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/"
+            className="text-sm text-white/40 hover:text-[#E882B2] transition-colors"
+          >
+            ← 홈으로 돌아가기
+          </Link>
         </div>
       </motion.div>
     </div>

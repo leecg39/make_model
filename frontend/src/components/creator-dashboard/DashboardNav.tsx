@@ -31,10 +31,10 @@ export function DashboardNav() {
   };
 
   return (
-    <nav className="w-64 bg-bg-secondary border-r border-white/10 min-h-screen p-6">
+    <nav className="w-64 bg-[#111] border-r border-white/10 min-h-screen p-6">
       <div className="mb-8">
         <h1 className="text-xl font-bold text-white">크리에이터</h1>
-        <p className="text-sm text-white/60 mt-1">대시보드</p>
+        <p className="text-sm text-white/50 mt-1">대시보드</p>
       </div>
 
       <ul className="space-y-2">
@@ -51,8 +51,8 @@ export function DashboardNav() {
                   transition-all duration-300
                   ${
                     active
-                      ? 'bg-accent-neon text-black font-semibold'
-                      : 'text-white hover:bg-white/5'
+                      ? 'bg-[#E882B2] text-black font-semibold'
+                      : 'text-white/70 hover:bg-white/5 hover:text-white'
                   }
                 `}
               >

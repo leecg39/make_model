@@ -39,10 +39,15 @@ export function DashboardNav({ activeTab, onTabChange }: DashboardNavProps) {
 
   return (
     <nav
-      className="bg-bg-secondary border-r border-white/10 min-h-screen w-64 p-4"
+      className="bg-[#111] border-r border-white/10 min-h-screen w-64 p-6"
       role="navigation"
       aria-label="대시보드 네비게이션"
     >
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white">브랜드</h2>
+        <p className="text-sm text-white/50 mt-1">대시보드</p>
+      </div>
+
       <div className="space-y-2">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -54,9 +59,9 @@ export function DashboardNav({ activeTab, onTabChange }: DashboardNavProps) {
               onKeyDown={(e) => handleKeyDown(e, tab.id)}
               role="tab"
               aria-selected={isActive}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
                 isActive
-                  ? 'bg-accent-neon text-black font-semibold'
+                  ? 'bg-[#E882B2] text-black font-semibold'
                   : 'text-white/70 hover:bg-white/5 hover:text-white'
               }`}
             >

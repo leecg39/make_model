@@ -93,21 +93,27 @@ export default function CreatorDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary flex">
+    <div className="min-h-screen bg-[#0a0a0a] flex">
       <DashboardNav />
 
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">주문 관리</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            크리에이터 <span className="text-[#E882B2]">대시보드</span>
+          </h1>
+          <p className="text-white/50 mb-8">받은 주문을 관리하고 결과물을 전달하세요</p>
 
-          <OrderTable
-            orders={orders}
-            isLoading={isLoading}
-            onAccept={handleAccept}
-            onReject={handleReject}
-            onComplete={handleComplete}
-            onChat={handleChat}
-          />
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">주문 관리</h2>
+            <OrderTable
+              orders={orders}
+              isLoading={isLoading}
+              onAccept={handleAccept}
+              onReject={handleReject}
+              onComplete={handleComplete}
+              onChat={handleChat}
+            />
+          </div>
         </div>
       </main>
 

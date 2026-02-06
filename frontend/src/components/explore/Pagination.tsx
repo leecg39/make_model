@@ -31,7 +31,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         whileTap={{ scale: 0.95 }}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-3 py-2 bg-[#1a1a1a] border border-white/10 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="이전 페이지"
       >
         이전
@@ -41,7 +41,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
       {startPage > 1 && (
         <>
           <PageButton page={1} currentPage={currentPage} onPageChange={onPageChange} />
-          {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+          {startPage > 2 && <span className="px-2 text-white/40">...</span>}
         </>
       )}
 
@@ -51,7 +51,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
 
       {endPage < totalPages && (
         <>
-          {endPage < totalPages - 1 && <span className="px-2 text-gray-500">...</span>}
+          {endPage < totalPages - 1 && <span className="px-2 text-white/40">...</span>}
           <PageButton page={totalPages} currentPage={currentPage} onPageChange={onPageChange} />
         </>
       )}
@@ -62,7 +62,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         whileTap={{ scale: 0.95 }}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="px-3 py-2 bg-[#1a1a1a] border border-white/10 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         aria-label="다음 페이지"
       >
         다음
@@ -89,8 +89,8 @@ function PageButton({
       onClick={() => onPageChange(page)}
       className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
         isCurrent
-          ? 'bg-indigo-600 text-white'
-          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+          ? 'bg-[#E882B2] text-black'
+          : 'bg-[#1a1a1a] border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
       }`}
       aria-label={`페이지 ${page}`}
       aria-current={isCurrent ? 'page' : undefined}

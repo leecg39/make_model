@@ -29,7 +29,7 @@ const variantConfig: Record<
 > = {
   no_orders_brand: {
     icon: (
-      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-16 h-16 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -43,7 +43,7 @@ const variantConfig: Record<
   },
   no_orders_creator: {
     icon: (
-      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-16 h-16 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -57,7 +57,7 @@ const variantConfig: Record<
   },
   no_models: {
     icon: (
-      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-16 h-16 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -71,7 +71,7 @@ const variantConfig: Record<
   },
   no_search_results: {
     icon: (
-      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-16 h-16 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -85,7 +85,7 @@ const variantConfig: Record<
   },
   no_messages: {
     icon: (
-      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-16 h-16 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -107,18 +107,20 @@ export function EmptyState({ variant, action }: EmptyStateProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex flex-col items-center justify-center py-12 px-4"
+      className="flex flex-col items-center justify-center py-16 px-4 bg-[#111] rounded-2xl border border-white/5"
     >
-      <div className="mb-4">{config.icon}</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{config.title}</h3>
-      <p className="text-gray-600 text-center mb-6 max-w-sm">{config.description}</p>
+      <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
+        {config.icon}
+      </div>
+      <h3 className="text-lg font-semibold text-white mb-2">{config.title}</h3>
+      <p className="text-white/50 text-center mb-6 max-w-sm">{config.description}</p>
 
       {action && (
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(232, 130, 178, 0.3)' }}
           whileTap={{ scale: 0.98 }}
           onClick={action.onClick}
-          className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          className="px-6 py-2.5 bg-[#E882B2] text-black rounded-lg font-medium hover:bg-[#f598c4] transition-colors"
         >
           {action.label}
         </motion.button>

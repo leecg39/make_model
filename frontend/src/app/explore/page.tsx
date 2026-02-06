@@ -43,7 +43,7 @@ function ExplorePageContent() {
   const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -56,15 +56,15 @@ function ExplorePageContent() {
 
       <div className="lg:ml-64 min-h-screen">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-[#111] border-b border-white/10 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between gap-4">
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setIsFilterOpen(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
               aria-label="필터 열기"
             >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
@@ -94,7 +94,10 @@ function ExplorePageContent() {
         <div className="px-4 sm:px-6 lg:px-8 py-8">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <p className="text-gray-600">로딩 중...</p>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-10 h-10 border-2 border-[#E882B2] border-t-transparent rounded-full animate-spin" />
+                <p className="text-white/50">모델 불러오는 중...</p>
+              </div>
             </div>
           ) : data && data.items.length > 0 ? (
             <>

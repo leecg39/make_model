@@ -95,7 +95,7 @@ export default function BrandDashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-bg-primary">
+    <div className="flex min-h-screen bg-[#0a0a0a]">
       {/* Sidebar */}
       <DashboardNav activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -104,13 +104,15 @@ export default function BrandDashboardPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">브랜드 대시보드</h1>
-            <p className="text-white/60">주문 내역과 찜한 모델을 관리하세요</p>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              브랜드 <span className="text-[#E882B2]">대시보드</span>
+            </h1>
+            <p className="text-white/50">주문 내역과 찜한 모델을 관리하세요</p>
           </header>
 
           {/* Content based on active tab */}
           {activeTab === 'orders' && (
-            <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
+            <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-white mb-4">주문 관리</h2>
               {!isLoading && orders.length === 0 ? (
                 <EmptyState onExploreClick={handleExploreClick} />
@@ -127,16 +129,16 @@ export default function BrandDashboardPage() {
           )}
 
           {activeTab === 'favorites' && (
-            <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
+            <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-white mb-4">찜 목록</h2>
-              <p className="text-white/60">찜 목록 기능 구현 예정</p>
+              <p className="text-white/50">찜 목록 기능 구현 예정</p>
             </div>
           )}
 
           {activeTab === 'profile' && (
-            <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
+            <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-white mb-4">프로필 설정</h2>
-              <p className="text-white/60">프로필 설정 기능 구현 예정</p>
+              <p className="text-white/50">프로필 설정 기능 구현 예정</p>
             </div>
           )}
         </div>

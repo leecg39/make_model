@@ -1,11 +1,12 @@
-// @TASK P1-S2-T1 - 회원가입 화면
-// @SPEC docs/planning/03-user-flow.md#회원가입
+// @TASK P1-S2-T1 - Signup page with social login (ourcovers-inspired redesign)
+// @SPEC Phase 1 Signup Screen
 'use client';
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth';
+import { useUIStore } from '@/stores/ui';
 import Link from 'next/link';
 
 type Role = 'brand' | 'creator';
@@ -33,6 +34,7 @@ type PasswordStrength = 'weak' | 'medium' | 'strong';
 export default function SignupPage() {
   const router = useRouter();
   const { register, isLoading, error, clearError, user } = useAuthStore();
+  const { addToast } = useUIStore();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<SignupFormData>({
@@ -196,28 +198,55 @@ export default function SignupPage() {
     }
   };
 
+  const handleSocialLogin = (provider: 'google' | 'kakao') => {
+    addToast({
+      variant: 'info',
+      message: `${provider === 'google' ? 'Google' : 'Kakao'} 회원가입 준비 중입니다`,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#E882B2] rounded-full filter blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-[#E882B2] rounded-full filter blur-[120px]" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg"
+        transition={{ duration: 0.4 }}
+        className="max-w-md w-full relative z-10"
       >
-        {/* 헤더 */}
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">회원가입</h1>
-          <p className="text-white/60">Make Model에 오신 것을 환영합니다</p>
+          <Link href="/" className="inline-block mb-6">
+            <span className="text-3xl font-bold">
+              <span className="text-white">MAKE</span>
+              <span className="text-[#E882B2]"> MODEL</span>
+            </span>
+          </Link>
+          <h1 className="text-2xl font-bold text-white mb-2">회원가입</h1>
+          <p className="text-sm text-white/50">
+            이미 계정이 있으신가요?{' '}
+            <Link
+              href="/auth/login"
+              className="font-semibold text-[#E882B2] hover:text-[#f598c4] transition-colors"
+            >
+              로그인하기
+            </Link>
+          </p>
         </div>
 
-        {/* 진행 단계 표시 */}
-        <div className="flex items-center justify-center mb-8 gap-2">
-          <div className={`w-12 h-1 rounded-full transition-colors ${step === 1 ? 'bg-[#c8ff00]' : 'bg-white/20'}`} />
-          <div className={`w-12 h-1 rounded-full transition-colors ${step === 2 ? 'bg-[#c8ff00]' : 'bg-white/20'}`} />
+        {/* Progress Steps */}
+        <div className="flex items-center justify-center mb-6 gap-2">
+          <div className={`w-16 h-1 rounded-full transition-colors ${step === 1 ? 'bg-[#E882B2]' : 'bg-white/20'}`} />
+          <div className={`w-16 h-1 rounded-full transition-colors ${step === 2 ? 'bg-[#E882B2]' : 'bg-white/20'}`} />
         </div>
 
-        {/* 폼 카드 */}
-        <div className="bg-[#141414] border border-white/10 rounded-2xl p-8">
+        {/* Signup Card */}
+        <div className="bg-[#111] rounded-2xl border border-white/10 p-8 backdrop-blur-sm">
           {step === 1 ? (
             // Step 1: 역할 선택
             <motion.div
@@ -225,26 +254,30 @@ export default function SignupPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <h2 className="text-xl font-semibold text-white mb-6">역할을 선택해주세요</h2>
+              <h2 className="text-lg font-semibold text-white mb-6">역할을 선택해주세요</h2>
 
               <div className="space-y-4 mb-6">
                 {/* 브랜드 카드 */}
                 <motion.button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, role: 'brand' }))}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className={`w-full p-5 rounded-xl border-2 transition-all text-left ${
                     formData.role === 'brand'
-                      ? 'border-[#c8ff00] bg-[#c8ff00]/10'
-                      : 'border-white/10 hover:border-white/20'
+                      ? 'border-[#E882B2] bg-[#E882B2]/10'
+                      : 'border-white/10 hover:border-white/20 bg-[#1a1a1a]'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="text-4xl">🏢</div>
+                    <div className="w-12 h-12 rounded-full bg-[#E882B2]/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#E882B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">브랜드 (광고주)</h3>
-                      <p className="text-sm text-white/60">AI 모델을 탐색하고 섭외하여 마케팅 캠페인을 진행합니다.</p>
+                      <h3 className="text-base font-semibold text-white mb-1">브랜드 (광고주)</h3>
+                      <p className="text-sm text-white/50">AI 모델을 탐색하고 섭외하여 마케팅 캠페인을 진행합니다.</p>
                     </div>
                   </div>
                 </motion.button>
@@ -253,19 +286,23 @@ export default function SignupPage() {
                 <motion.button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, role: 'creator' }))}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className={`w-full p-5 rounded-xl border-2 transition-all text-left ${
                     formData.role === 'creator'
-                      ? 'border-[#c8ff00] bg-[#c8ff00]/10'
-                      : 'border-white/10 hover:border-white/20'
+                      ? 'border-[#E882B2] bg-[#E882B2]/10'
+                      : 'border-white/10 hover:border-white/20 bg-[#1a1a1a]'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <div className="text-4xl">🎨</div>
+                    <div className="w-12 h-12 rounded-full bg-[#E882B2]/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[#E882B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">크리에이터 (모델 제작자)</h3>
-                      <p className="text-sm text-white/60">AI 모델을 제작하고 판매하여 수익을 창출합니다.</p>
+                      <h3 className="text-base font-semibold text-white mb-1">크리에이터 (모델 제작자)</h3>
+                      <p className="text-sm text-white/50">AI 모델을 제작하고 판매하여 수익을 창출합니다.</p>
                     </div>
                   </div>
                 </motion.button>
@@ -278,11 +315,18 @@ export default function SignupPage() {
               <motion.button
                 type="button"
                 onClick={handleStep1Next}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-[#c8ff00] text-black py-3 rounded-full font-semibold text-sm hover:bg-[#c8ff00]/90 transition-all"
+                disabled={!formData.role}
+                whileHover={formData.role ? { scale: 1.02, boxShadow: '0 0 30px rgba(232, 130, 178, 0.3)' } : {}}
+                whileTap={formData.role ? { scale: 0.98 } : {}}
+                className="
+                  w-full py-3.5 px-4 rounded-lg font-semibold text-black
+                  bg-[#E882B2] hover:bg-[#f598c4]
+                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-[#E882B2]
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  transition-all duration-300
+                "
               >
-                다음
+                다음 단계
               </motion.button>
             </motion.div>
           ) : (
@@ -292,182 +336,207 @@ export default function SignupPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
+              className="space-y-5"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-white/60 hover:text-white transition-colors"
+                  className="text-white/50 hover:text-[#E882B2] transition-colors text-sm"
                 >
                   ← 이전
                 </button>
-                <h2 className="text-xl font-semibold text-white">정보 입력</h2>
-                <div className="w-16" /> {/* 균형 맞추기 */}
+                <span className="text-sm text-white/50">
+                  {formData.role === 'brand' ? '브랜드' : '크리에이터'} 가입
+                </span>
               </div>
 
-              <div className="space-y-4">
-                {/* 이메일 */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-                    이메일
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      className="w-full bg-[#0a0a0a] border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#c8ff00] transition-colors"
-                      placeholder="example@email.com"
-                      aria-invalid={!!errors.email}
-                      aria-describedby={errors.email ? 'email-error' : undefined}
-                    />
-                    {emailCheckLoading && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <div className="w-5 h-5 border-2 border-[#c8ff00] border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  {errors.email && (
-                    <p id="email-error" role="alert" className="text-red-400 text-sm mt-1">
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
+              {/* Global Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-lg bg-red-500/10 border border-red-500/30 p-4"
+                >
+                  <p className="text-sm text-red-400 font-medium">{error}</p>
+                </motion.div>
+              )}
 
-                {/* 비밀번호 */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
-                    비밀번호
-                  </label>
+              {/* 이메일 */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-1.5">
+                  이메일
+                </label>
+                <div className="relative">
                   <input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#c8ff00] transition-colors"
-                    placeholder="최소 8자, 영문+숫자"
-                    aria-invalid={!!errors.password}
-                    aria-describedby={errors.password ? 'password-error' : 'password-strength'}
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    className={`
+                      w-full px-4 py-3 rounded-lg border transition-all duration-200
+                      bg-[#1a1a1a] text-white placeholder-white/30
+                      focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                      ${errors.email ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
+                    `}
+                    placeholder="example@email.com"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'email-error' : undefined}
                   />
-
-                  {/* 비밀번호 강도 바 */}
-                  {formData.password && (
-                    <div id="password-strength" className="mt-2">
-                      <div className="flex gap-1">
-                        <div className={`h-1 flex-1 rounded-full transition-colors ${
-                          passwordStrength === 'weak' ? 'bg-red-500' :
-                          passwordStrength === 'medium' ? 'bg-yellow-500' :
-                          'bg-green-500'
-                        }`} />
-                        <div className={`h-1 flex-1 rounded-full transition-colors ${
-                          passwordStrength === 'medium' || passwordStrength === 'strong' ?
-                          (passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-green-500') :
-                          'bg-white/20'
-                        }`} />
-                        <div className={`h-1 flex-1 rounded-full transition-colors ${
-                          passwordStrength === 'strong' ? 'bg-green-500' : 'bg-white/20'
-                        }`} />
-                      </div>
-                      <p className={`text-xs mt-1 ${
-                        passwordStrength === 'weak' ? 'text-red-400' :
-                        passwordStrength === 'medium' ? 'text-yellow-400' :
-                        'text-green-400'
-                      }`}>
-                        {passwordStrength === 'weak' ? '약함' :
-                         passwordStrength === 'medium' ? '보통' : '강함'}
-                      </p>
+                  {emailCheckLoading && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="w-5 h-5 border-2 border-[#E882B2] border-t-transparent rounded-full animate-spin" />
                     </div>
                   )}
-
-                  {errors.password && (
-                    <p id="password-error" role="alert" className="text-red-400 text-sm mt-1">
-                      {errors.password}
-                    </p>
-                  )}
                 </div>
-
-                {/* 비밀번호 확인 */}
-                <div>
-                  <label htmlFor="passwordConfirm" className="block text-sm font-medium text-white mb-2">
-                    비밀번호 확인
-                  </label>
-                  <input
-                    id="passwordConfirm"
-                    type="password"
-                    value={formData.passwordConfirm}
-                    onChange={(e) => setFormData(prev => ({ ...prev, passwordConfirm: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#c8ff00] transition-colors"
-                    placeholder="비밀번호를 다시 입력하세요"
-                    aria-invalid={!!errors.passwordConfirm}
-                    aria-describedby={errors.passwordConfirm ? 'passwordConfirm-error' : undefined}
-                  />
-                  {errors.passwordConfirm && (
-                    <p id="passwordConfirm-error" role="alert" className="text-red-400 text-sm mt-1">
-                      {errors.passwordConfirm}
-                    </p>
-                  )}
-                </div>
-
-                {/* 닉네임 */}
-                <div>
-                  <label htmlFor="nickname" className="block text-sm font-medium text-white mb-2">
-                    닉네임
-                  </label>
-                  <input
-                    id="nickname"
-                    type="text"
-                    value={formData.nickname}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
-                    className="w-full bg-[#0a0a0a] border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#c8ff00] transition-colors"
-                    placeholder="2-20자"
-                    aria-invalid={!!errors.nickname}
-                    aria-describedby={errors.nickname ? 'nickname-error' : undefined}
-                  />
-                  {errors.nickname && (
-                    <p id="nickname-error" role="alert" className="text-red-400 text-sm mt-1">
-                      {errors.nickname}
-                    </p>
-                  )}
-                </div>
-
-                {/* 회사명 (brand 역할일 때만) */}
-                {formData.role === 'brand' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <label htmlFor="company_name" className="block text-sm font-medium text-white mb-2">
-                      회사명 <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      id="company_name"
-                      type="text"
-                      value={formData.company_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                      className="w-full bg-[#0a0a0a] border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[#c8ff00] transition-colors"
-                      placeholder="회사명을 입력하세요"
-                      aria-invalid={!!errors.company_name}
-                      aria-describedby={errors.company_name ? 'company-error' : undefined}
-                    />
-                    {errors.company_name && (
-                      <p id="company-error" role="alert" className="text-red-400 text-sm mt-1">
-                        {errors.company_name}
-                      </p>
-                    )}
-                  </motion.div>
+                {errors.email && (
+                  <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
-              {/* API 에러 */}
-              {error && (
+              {/* 비밀번호 */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-1.5">
+                  비밀번호
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  className={`
+                    w-full px-4 py-3 rounded-lg border transition-all duration-200
+                    bg-[#1a1a1a] text-white placeholder-white/30
+                    focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                    ${errors.password ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
+                  `}
+                  placeholder="최소 8자, 영문+숫자"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : 'password-strength'}
+                />
+
+                {/* 비밀번호 강도 바 */}
+                {formData.password && (
+                  <div id="password-strength" className="mt-2">
+                    <div className="flex gap-1">
+                      <div className={`h-1 flex-1 rounded-full transition-colors ${
+                        passwordStrength === 'weak' ? 'bg-red-500' :
+                        passwordStrength === 'medium' ? 'bg-yellow-500' :
+                        'bg-[#E882B2]'
+                      }`} />
+                      <div className={`h-1 flex-1 rounded-full transition-colors ${
+                        passwordStrength === 'medium' || passwordStrength === 'strong' ?
+                        (passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-[#E882B2]') :
+                        'bg-white/20'
+                      }`} />
+                      <div className={`h-1 flex-1 rounded-full transition-colors ${
+                        passwordStrength === 'strong' ? 'bg-[#E882B2]' : 'bg-white/20'
+                      }`} />
+                    </div>
+                    <p className={`text-xs mt-1 ${
+                      passwordStrength === 'weak' ? 'text-red-400' :
+                      passwordStrength === 'medium' ? 'text-yellow-400' :
+                      'text-[#E882B2]'
+                    }`}>
+                      {passwordStrength === 'weak' ? '약함' :
+                       passwordStrength === 'medium' ? '보통' : '강함'}
+                    </p>
+                  </div>
+                )}
+
+                {errors.password && (
+                  <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
+              {/* 비밀번호 확인 */}
+              <div>
+                <label htmlFor="passwordConfirm" className="block text-sm font-medium text-white/70 mb-1.5">
+                  비밀번호 확인
+                </label>
+                <input
+                  id="passwordConfirm"
+                  type="password"
+                  value={formData.passwordConfirm}
+                  onChange={(e) => setFormData(prev => ({ ...prev, passwordConfirm: e.target.value }))}
+                  className={`
+                    w-full px-4 py-3 rounded-lg border transition-all duration-200
+                    bg-[#1a1a1a] text-white placeholder-white/30
+                    focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                    ${errors.passwordConfirm ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
+                  `}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  aria-invalid={!!errors.passwordConfirm}
+                  aria-describedby={errors.passwordConfirm ? 'passwordConfirm-error' : undefined}
+                />
+                {errors.passwordConfirm && (
+                  <p id="passwordConfirm-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                    {errors.passwordConfirm}
+                  </p>
+                )}
+              </div>
+
+              {/* 닉네임 */}
+              <div>
+                <label htmlFor="nickname" className="block text-sm font-medium text-white/70 mb-1.5">
+                  닉네임
+                </label>
+                <input
+                  id="nickname"
+                  type="text"
+                  value={formData.nickname}
+                  onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
+                  className={`
+                    w-full px-4 py-3 rounded-lg border transition-all duration-200
+                    bg-[#1a1a1a] text-white placeholder-white/30
+                    focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                    ${errors.nickname ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
+                  `}
+                  placeholder="2-20자"
+                  aria-invalid={!!errors.nickname}
+                  aria-describedby={errors.nickname ? 'nickname-error' : undefined}
+                />
+                {errors.nickname && (
+                  <p id="nickname-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                    {errors.nickname}
+                  </p>
+                )}
+              </div>
+
+              {/* 회사명 (brand 역할일 때만) */}
+              {formData.role === 'brand' && (
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
                 >
-                  <p className="text-red-400 text-sm">{error}</p>
+                  <label htmlFor="company_name" className="block text-sm font-medium text-white/70 mb-1.5">
+                    회사명 <span className="text-[#E882B2]">*</span>
+                  </label>
+                  <input
+                    id="company_name"
+                    type="text"
+                    value={formData.company_name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+                    className={`
+                      w-full px-4 py-3 rounded-lg border transition-all duration-200
+                      bg-[#1a1a1a] text-white placeholder-white/30
+                      focus:outline-none focus:ring-2 focus:ring-[#E882B2] focus:border-transparent
+                      ${errors.company_name ? 'border-red-500/50 bg-red-500/10' : 'border-white/10'}
+                    `}
+                    placeholder="회사명을 입력하세요"
+                    aria-invalid={!!errors.company_name}
+                    aria-describedby={errors.company_name ? 'company-error' : undefined}
+                  />
+                  {errors.company_name && (
+                    <p id="company-error" role="alert" className="mt-1.5 text-xs text-red-400">
+                      {errors.company_name}
+                    </p>
+                  )}
                 </motion.div>
               )}
 
@@ -475,31 +544,126 @@ export default function SignupPage() {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                className="w-full bg-[#c8ff00] text-black py-3 rounded-full font-semibold text-sm hover:bg-[#c8ff00]/90 transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={!isLoading ? { scale: 1.02, boxShadow: '0 0 30px rgba(232, 130, 178, 0.3)' } : {}}
+                whileTap={!isLoading ? { scale: 0.98 } : {}}
+                className="
+                  w-full py-3.5 px-4 rounded-lg font-semibold text-black
+                  bg-[#E882B2] hover:bg-[#f598c4]
+                  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-[#E882B2]
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  transition-all duration-300
+                "
                 aria-busy={isLoading}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    처리 중...
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    가입 중...
                   </span>
                 ) : (
                   '회원가입'
                 )}
               </motion.button>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-[#111] text-white/40">또는</span>
+                </div>
+              </div>
+
+              {/* Social Signup Buttons */}
+              <div className="space-y-3">
+                {/* Google */}
+                <motion.button
+                  type="button"
+                  onClick={() => handleSocialLogin('google')}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="
+                    w-full py-3 px-4 rounded-lg font-medium
+                    bg-white hover:bg-gray-100
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-gray-500
+                    transition-colors
+                    flex items-center justify-center gap-3
+                  "
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  <span className="text-gray-700">Google 계정으로 가입</span>
+                </motion.button>
+
+                {/* Kakao */}
+                <motion.button
+                  type="button"
+                  onClick={() => handleSocialLogin('kakao')}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="
+                    w-full py-3 px-4 rounded-lg font-medium
+                    bg-[#FEE500] hover:bg-[#FDD700]
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#111] focus:ring-yellow-500
+                    transition-colors
+                    flex items-center justify-center gap-3
+                  "
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#000000" aria-hidden="true">
+                    <path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.726 1.735 5.119 4.35 6.594-.184.672-.6 2.281-.69 2.646-.108.43.158.424.332.308.139-.093 2.158-1.448 3.002-2.025.656.09 1.328.137 2.006.137 5.523 0 10-3.477 10-7.76S17.523 3 12 3z" />
+                  </svg>
+                  <span className="text-gray-900">카카오 계정으로 가입</span>
+                </motion.button>
+              </div>
             </motion.form>
           )}
         </div>
 
-        {/* 로그인 링크 */}
-        <p className="text-center text-white/60 mt-6">
-          이미 계정이 있으신가요?{' '}
-          <Link href="/auth/login" className="text-[#c8ff00] hover:underline">
-            로그인
+        {/* Back to Home */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/"
+            className="text-sm text-white/40 hover:text-[#E882B2] transition-colors"
+          >
+            ← 홈으로 돌아가기
           </Link>
-        </p>
+        </div>
       </motion.div>
     </div>
   );
