@@ -17,6 +17,8 @@ export function HeroSection() {
     router.push('/explore');
   };
 
+  const addToast = useUIStore((state) => state.addToast);
+
   const handleRegisterModel = () => {
     if (!user) {
       openLoginModal();
@@ -26,7 +28,8 @@ export function HeroSection() {
     if (user.role === 'creator') {
       router.push('/models/new');
     } else {
-      openLoginModal();
+      addToast({ variant: 'info', message: '모델 등록은 크리에이터 계정으로 이용 가능합니다' });
+      router.push('/explore');
     }
   };
 

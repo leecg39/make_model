@@ -17,7 +17,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !token) {
-      router.push('/login');
+      router.push('/auth/login');
     }
   }, [token, isLoading, router]);
 

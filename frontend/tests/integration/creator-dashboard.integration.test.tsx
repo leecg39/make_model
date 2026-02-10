@@ -108,9 +108,9 @@ describe('Creator Dashboard Integration Tests', () => {
     it('should display pending orders on initial load', async () => {
       render(<CreatorDashboardPage />);
 
-      // Wait for the h1 heading to appear (page content loaded)
+      // Wait for the h2 heading to appear (page content loaded)
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
       // Check pending order is displayed
@@ -411,17 +411,17 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      // Look for models tab
-      const tabs = screen.queryAllByRole('tab');
-      const modelsTab = tabs.find((tab) =>
-        tab.textContent?.includes('모델') || tab.textContent?.includes('내')
+      // Look for models nav button (nav uses buttons, not tabs)
+      const buttons = screen.queryAllByRole('button');
+      const modelsButton = buttons.find((btn) =>
+        btn.textContent?.includes('내 모델')
       );
 
-      // Tab should exist in navigation
-      expect(screen.queryByRole('tablist')).toBeDefined();
+      // Nav button should exist
+      expect(modelsButton).toBeDefined();
     });
 
     // @TEST P4-S2-T2.14
@@ -430,20 +430,20 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      // Look for and click models tab
-      const tabs = screen.queryAllByRole('tab');
-      const modelsTab = tabs.find((tab) =>
-        tab.textContent?.toLowerCase().includes('모델')
+      // Look for and click models nav button
+      const buttons = screen.queryAllByRole('button');
+      const modelsButton = buttons.find((btn) =>
+        btn.textContent?.includes('내 모델')
       );
 
-      if (modelsTab) {
-        await user.click(modelsTab);
+      if (modelsButton) {
+        await user.click(modelsButton);
 
-        // Component should show models content
-        expect(screen.queryByRole('heading')).toBeDefined();
+        // Component should show models content (multiple headings exist on page)
+        expect(screen.queryAllByRole('heading').length).toBeGreaterThan(0);
       }
     });
 
@@ -453,17 +453,17 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      // Navigate to models tab
-      const tabs = screen.queryAllByRole('tab');
-      const modelsTab = tabs.find((tab) =>
-        tab.textContent?.toLowerCase().includes('모델')
+      // Navigate to models nav button
+      const buttons = screen.queryAllByRole('button');
+      const modelsButton = buttons.find((btn) =>
+        btn.textContent?.includes('내 모델')
       );
 
-      if (modelsTab) {
-        await user.click(modelsTab);
+      if (modelsButton) {
+        await user.click(modelsButton);
 
         // Look for grid layout or model cards
         expect(screen.queryAllByRole('img')).toBeDefined();
@@ -477,17 +477,17 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      // Look for settlements tab
-      const tabs = screen.queryAllByRole('tab');
-      const settlementsTab = tabs.find((tab) =>
-        tab.textContent?.includes('정산')
+      // Look for settlements nav button (nav uses buttons, not tabs)
+      const buttons = screen.queryAllByRole('button');
+      const settlementsButton = buttons.find((btn) =>
+        btn.textContent?.includes('정산')
       );
 
-      // Tab should exist in navigation
-      expect(screen.queryByRole('tablist')).toBeDefined();
+      // Nav button should exist
+      expect(settlementsButton).toBeDefined();
     });
 
     // @TEST P4-S2-T2.17
@@ -496,20 +496,20 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      // Look for and click settlements tab
-      const tabs = screen.queryAllByRole('tab');
-      const settlementsTab = tabs.find((tab) =>
-        tab.textContent?.includes('정산')
+      // Look for and click settlements nav button
+      const buttons = screen.queryAllByRole('button');
+      const settlementsButton = buttons.find((btn) =>
+        btn.textContent?.includes('정산')
       );
 
-      if (settlementsTab) {
-        await user.click(settlementsTab);
+      if (settlementsButton) {
+        await user.click(settlementsButton);
 
-        // Component should show settlements content
-        expect(screen.queryByRole('tablist')).toBeDefined();
+        // Component should show settlements content (navigation triggered)
+        expect(screen.queryByRole('navigation')).toBeDefined();
       }
     });
 
@@ -519,19 +519,20 @@ describe('Creator Dashboard Integration Tests', () => {
       render(<CreatorDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
       });
 
-      const tabs = screen.queryAllByRole('tab');
-      const settlementsTab = tabs.find((tab) =>
-        tab.textContent?.includes('정산')
+      // Look for and click settlements nav button
+      const buttons = screen.queryAllByRole('button');
+      const settlementsButton = buttons.find((btn) =>
+        btn.textContent?.includes('정산')
       );
 
-      if (settlementsTab) {
-        await user.click(settlementsTab);
+      if (settlementsButton) {
+        await user.click(settlementsButton);
 
-        // Look for table elements
-        expect(screen.queryByRole('rowgroup')).toBeDefined();
+        // Look for table elements (multiple rowgroups: thead + tbody)
+        expect(screen.queryAllByRole('rowgroup').length).toBeGreaterThan(0);
       }
     });
   });
@@ -557,8 +558,8 @@ describe('Creator Dashboard Integration Tests', () => {
 
       render(<CreatorDashboardPage />);
 
-      // Component should render even in loading state - use heading for unique identification
-      expect(screen.getByRole('heading', { name: '주문 관리', level: 1 })).toBeInTheDocument();
+      // Component should render even in loading state - h1 is now "크리에이터 대시보드", "주문 관리" is h2
+      expect(screen.getByRole('heading', { name: '주문 관리', level: 2 })).toBeInTheDocument();
     });
 
     // @TEST P4-S2-T2.21

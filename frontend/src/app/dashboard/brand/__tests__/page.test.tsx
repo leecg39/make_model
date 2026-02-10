@@ -85,7 +85,7 @@ describe('BrandDashboardPage', () => {
     render(<BrandDashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
     });
 
     // Check navigation tabs - "주문 관리" appears multiple times, use getAllByText

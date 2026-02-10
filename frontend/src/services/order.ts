@@ -1,4 +1,5 @@
 // @TASK P4-S1-T1, P4-S2-T1 - Order API services for Brand & Creator Dashboards
+// Falls back to empty mock data when backend is unavailable.
 
 import api from './api';
 import type {
@@ -14,6 +15,10 @@ import type {
   BrandOrdersResponse,
 } from '@/types/order';
 
+function isNetworkError(err: unknown): boolean {
+  return (err as any)?.code === 'ERR_NETWORK' || (err as any)?.message === 'Network Error';
+}
+
 export const orderService = {
   /**
    * Get orders for creator
@@ -23,24 +28,34 @@ export const orderService = {
     limit?: number;
     status?: string;
   }): Promise<OrdersResponse> {
-    const response = await api.get<OrdersResponse>('/api/orders', {
-      params: { ...params, role: 'creator' },
-    });
-    return response.data;
+    try {
+      const response = await api.get<OrdersResponse>('/api/orders', {
+        params: { ...params, role: 'creator' },
+      });
+      return response.data;
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { items: [], total: 0, page: params?.page || 1, limit: params?.limit || 20 };
+      }
+      throw err;
+    }
   },
 
   /**
    * Get brand orders
    */
   async getBrandOrders(page: number = 1, perPage: number = 20): Promise<BrandOrdersResponse> {
-    const response = await api.get('/api/orders', {
-      params: {
-        role: 'brand',
-        page,
-        per_page: perPage,
-      },
-    });
-    return response.data;
+    try {
+      const response = await api.get('/api/orders', {
+        params: { role: 'brand', page, per_page: perPage },
+      });
+      return response.data;
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { orders: [], total: 0, page, per_page: perPage };
+      }
+      throw err;
+    }
   },
 
   /**
@@ -76,8 +91,15 @@ export const orderService = {
    * Get delivery files
    */
   async getDeliveryFiles(orderId: string): Promise<DeliveryFilesResponse> {
-    const response = await api.get(`/api/delivery/${orderId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/api/delivery/${orderId}`);
+      return response.data;
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { files: [] };
+      }
+      throw err;
+    }
   },
 
   /**
@@ -87,10 +109,17 @@ export const orderService = {
     page?: number;
     limit?: number;
   }): Promise<SettlementsResponse> {
-    const response = await api.get<SettlementsResponse>('/api/settlements', {
-      params,
-    });
-    return response.data;
+    try {
+      const response = await api.get<SettlementsResponse>('/api/settlements', {
+        params,
+      });
+      return response.data;
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { items: [], total: 0, pending_amount: 0, completed_amount: 0 };
+      }
+      throw err;
+    }
   },
 
   /**
@@ -105,8 +134,15 @@ export const orderService = {
    * Get favorites
    */
   async getFavorites(): Promise<FavoritesResponse> {
-    const response = await api.get('/api/favorites');
-    return response.data;
+    try {
+      const response = await api.get('/api/favorites');
+      return response.data;
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { favorites: [] };
+      }
+      throw err;
+    }
   },
 
   /**

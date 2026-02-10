@@ -161,7 +161,7 @@ describe('Brand Dashboard Integration Tests', () => {
       render(<BrandDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
       });
 
       // Check table header (may appear in both sidebar and page content)
@@ -362,7 +362,7 @@ describe('Brand Dashboard Integration Tests', () => {
       render(<BrandDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
       });
 
       // Check for empty state message or component
@@ -390,7 +390,7 @@ describe('Brand Dashboard Integration Tests', () => {
       render(<BrandDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
       });
 
       // Look for explore/CTA button
@@ -412,7 +412,7 @@ describe('Brand Dashboard Integration Tests', () => {
       render(<BrandDashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
       });
 
       // Find and click the explore CTA button
@@ -442,7 +442,7 @@ describe('Brand Dashboard Integration Tests', () => {
 
       // Component should show loading indicator
       // (specific implementation depends on component)
-      expect(screen.getByText('브랜드 대시보드')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('브랜드 대시보드');
     });
 
     // @TEST P4-S1-T2.14
@@ -482,7 +482,7 @@ describe('Brand Dashboard Integration Tests', () => {
       render(<BrandDashboardPage />);
 
       // Should redirect to login
-      expect(mockPush).toHaveBeenCalledWith('/login');
+      expect(mockPush).toHaveBeenCalledWith('/auth/login');
     });
   });
 });

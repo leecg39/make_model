@@ -114,7 +114,7 @@ export default function OrderChatPage() {
   };
 
   if (!user) {
-    router.push('/login');
+    router.push('/auth/login');
     return null;
   }
 

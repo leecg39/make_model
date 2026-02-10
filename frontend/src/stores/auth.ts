@@ -17,6 +17,7 @@ interface AuthStore {
 
   // Actions
   login: (data: LoginRequest) => Promise<void>;
+  socialLogin: (provider: 'google' | 'kakao') => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
@@ -48,6 +49,20 @@ export const useAuthStore = create<AuthStore>()(
           await get().fetchUser();
         } catch (error: any) {
           set({ error: error.message || 'Login failed' });
+          throw error;
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      socialLogin: async (provider: 'google' | 'kakao') => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await authService.socialLogin(provider);
+          set({ token: response.access_token });
+          await get().fetchUser();
+        } catch (error: any) {
+          set({ error: error.message || 'Social login failed' });
           throw error;
         } finally {
           set({ isLoading: false });
@@ -99,7 +114,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ token: state.token }),
+      partialize: (state) => ({ token: state.token, user: state.user }),
     }
   )
 );

@@ -113,7 +113,7 @@ export function Header() {
                   로그인
                 </Link>
                 <Link
-                  href="/auth/register"
+                  href="/auth/signup"
                   className="px-5 py-2 bg-[#E882B2] text-black rounded-lg font-semibold hover:bg-[#f598c4] transition-all duration-300"
                 >
                   회원가입
@@ -241,7 +241,7 @@ export function Header() {
                       로그인
                     </Link>
                     <Link
-                      href="/auth/register"
+                      href="/auth/signup"
                       className="block px-4 py-3 bg-[#E882B2] text-black rounded-lg font-semibold hover:bg-[#f598c4] transition-colors text-center mt-2"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >

@@ -147,7 +147,7 @@ describe('NewModelPage', () => {
     render(<NewModelPage />);
 
     waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/login');
+      expect(mockPush).toHaveBeenCalledWith('/auth/login');
     });
   });
 

@@ -20,7 +20,7 @@ export default function NewModelPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!token) {
-        router.push('/login');
+        router.push('/auth/login');
       } else if (user && user.role !== 'creator') {
         router.push('/');
       }

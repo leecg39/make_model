@@ -3,4 +3,3 @@ export { DashboardNav } from './DashboardNav';
 export { OrderTable } from './OrderTable';
 export { OrderDetailModal } from './OrderDetailModal';
 export { EmptyState } from './EmptyState';
-export type { DashboardTab } from './DashboardNav';

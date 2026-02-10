@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, socialLogin, isLoading, error, clearError } = useAuthStore();
   const { addToast } = useUIStore();
 
   const [formData, setFormData] = useState({
@@ -86,11 +86,26 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = (provider: 'google' | 'kakao') => {
-    addToast({
-      variant: 'info',
-      message: `${provider === 'google' ? 'Google' : 'Kakao'} 로그인 준비 중입니다`,
-    });
+  const handleSocialLogin = async (provider: 'google' | 'kakao') => {
+    clearError();
+    try {
+      await socialLogin(provider);
+
+      const currentUser = useAuthStore.getState().user;
+      addToast({
+        variant: 'success',
+        message: `${provider === 'google' ? 'Google' : '카카오'} 로그인 성공`,
+      });
+      if (currentUser?.role === 'brand') {
+        router.push('/dashboard/brand');
+      } else if (currentUser?.role === 'creator') {
+        router.push('/dashboard/creator');
+      } else {
+        router.push('/');
+      }
+    } catch (err: any) {
+      console.error('Social login error:', err);
+    }
   };
 
   return (

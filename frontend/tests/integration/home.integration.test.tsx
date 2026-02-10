@@ -3,7 +3,7 @@
 // @SPEC specs/screens/home.yaml
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HomePage from '@/app/page';
 import type { AIModel } from '@/types/model';
@@ -541,15 +541,17 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
     expect(
       screen.getByText('AI 인플루언서 마켓플레이스')
     ).toBeInTheDocument();
-    expect(screen.getByText('브랜드와 AI 모델을 연결하는 플랫폼, Make Model')).toBeInTheDocument();
+    expect(screen.getByText('브랜드와 AI 모델을 연결하는 프리미엄 플랫폼')).toBeInTheDocument();
 
     // Wait for models to load
     await waitFor(() => {
       expect(screen.getByText('Popular Model 1')).toBeInTheDocument();
     });
 
-    // Check popular models section
-    expect(screen.getByText('인기 모델')).toBeInTheDocument();
+    // Check popular models section (heading is split: "인기 " + <span>"모델"</span>)
+    expect(screen.getByText((content, element) =>
+      element?.tagName === 'H2' && element?.textContent === '인기 모델'
+    )).toBeInTheDocument();
     expect(screen.getByText('Popular Model 1')).toBeInTheDocument();
     expect(screen.getByText('Popular Model 8')).toBeInTheDocument();
 
@@ -558,13 +560,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
     expect(screen.getByText('Recent Model 1')).toBeInTheDocument();
     expect(screen.getByText('Recent Model 8')).toBeInTheDocument();
 
-    // Check stats section
-    expect(screen.getByText('등록된 모델')).toBeInTheDocument();
-    expect(screen.getByText('성사된 예약')).toBeInTheDocument();
+    // Check stats section (redesigned labels)
+    expect(screen.getByText('AI 모델')).toBeInTheDocument();
+    expect(screen.getByText('크리에이터')).toBeInTheDocument();
     expect(screen.getByText('브랜드')).toBeInTheDocument();
-    expect(screen.getByText('287')).toBeInTheDocument(); // total_models
-    expect(screen.getByText('156')).toBeInTheDocument(); // total_bookings
-    expect(screen.getByText('45')).toBeInTheDocument(); // total_brands
   });
 
   // =========================================================================
@@ -588,21 +587,14 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('Popular Model 1')).toBeInTheDocument();
     });
 
-    // Click on first popular model card
-    const popularModel1Card = screen.getByText('Popular Model 1').closest('div');
-    expect(popularModel1Card).toBeInTheDocument();
-
-    const clickableArea = popularModel1Card?.closest(
-      '[class*="rounded-2xl"]'
-    );
-    if (clickableArea) {
-      await userEvent.click(clickableArea);
-    }
+    // Click on the model card (the card's outer div has cursor-pointer and onClick handler)
+    const popularModel1Text = screen.getByText('Popular Model 1');
+    const cardElement = popularModel1Text.closest('[class*="cursor-pointer"]');
+    expect(cardElement).toBeInTheDocument();
+    fireEvent.click(cardElement!);
 
     // Verify navigation was called with correct ID
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/models/model-1');
-    });
+    expect(mockPush).toHaveBeenCalledWith('/models/model-1');
   });
 
   it('should navigate to model detail page when clicking on a recent model card', async () => {
@@ -622,28 +614,21 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('Recent Model 1')).toBeInTheDocument();
     });
 
-    // Click on first recent model card
-    const recentModel1Card = screen.getByText('Recent Model 1').closest('div');
-    expect(recentModel1Card).toBeInTheDocument();
-
-    const clickableArea = recentModel1Card?.closest(
-      '[class*="rounded-2xl"]'
-    );
-    if (clickableArea) {
-      await userEvent.click(clickableArea);
-    }
+    // Click on the model card (the card's outer div has cursor-pointer and onClick handler)
+    const recentModel1Text = screen.getByText('Recent Model 1');
+    const cardElement = recentModel1Text.closest('[class*="cursor-pointer"]');
+    expect(cardElement).toBeInTheDocument();
+    fireEvent.click(cardElement!);
 
     // Verify navigation was called with correct ID
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/models/recent-1');
-    });
+    expect(mockPush).toHaveBeenCalledWith('/models/recent-1');
   });
 
   // =========================================================================
-  // TEST 3: CTA 비로그인 - "모델 등록하기" 클릭 시 로그인 모달 오픈
+  // TEST 3: CTA 비로그인 - "모델 등록" 클릭 시 로그인 모달 오픈
   // =========================================================================
 
-  it('should open login modal when non-logged-in user clicks "모델 등록하기"', async () => {
+  it('should open login modal when non-logged-in user clicks "모델 등록"', async () => {
     const { modelService } = await import('@/services/model');
     const { statsService } = await import('@/services/stats');
     const { useUIStore } = await import('@/stores/ui');
@@ -663,10 +648,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('AI 인플루언서 마켓플레이스')).toBeInTheDocument();
     });
 
-    // Click "모델 등록하기" button
+    // Click "모델 등록" button
     const registerButtons = screen.getAllByRole('button');
     const registerButton = registerButtons.find(
-      (btn) => btn.textContent?.includes('모델 등록하기')
+      (btn) => btn.textContent?.includes('모델 등록')
     );
     expect(registerButton).toBeDefined();
 
@@ -682,10 +667,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
   });
 
   // =========================================================================
-  // TEST 4: CTA 크리에이터 - "모델 등록하기" 클릭 시 /models/new로 이동
+  // TEST 4: CTA 크리에이터 - "모델 등록" 클릭 시 /models/new로 이동
   // =========================================================================
 
-  it('should navigate to /models/new when creator clicks "모델 등록하기"', async () => {
+  it('should navigate to /models/new when creator clicks "모델 등록"', async () => {
     const { modelService } = await import('@/services/model');
     const { statsService } = await import('@/services/stats');
     const { useAuthStore } = await import('@/stores/auth');
@@ -711,10 +696,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('AI 인플루언서 마켓플레이스')).toBeInTheDocument();
     });
 
-    // Click "모델 등록하기" button
+    // Click "모델 등록" button
     const registerButtons = screen.getAllByRole('button');
     const registerButton = registerButtons.find(
-      (btn) => btn.textContent?.includes('모델 등록하기')
+      (btn) => btn.textContent?.includes('모델 등록')
     );
     expect(registerButton).toBeDefined();
 
@@ -731,7 +716,7 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
     expect(mockUIStoreData.openLoginModal).not.toHaveBeenCalled();
   });
 
-  it('should NOT navigate when non-creator user clicks "모델 등록하기"', async () => {
+  it('should NOT navigate when non-creator user clicks "모델 등록"', async () => {
     const { modelService } = await import('@/services/model');
     const { statsService } = await import('@/services/stats');
 
@@ -756,10 +741,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('AI 인플루언서 마켓플레이스')).toBeInTheDocument();
     });
 
-    // Click "모델 등록하기" button
+    // Click "모델 등록" button
     const registerButtons = screen.getAllByRole('button');
     const registerButton = registerButtons.find(
-      (btn) => btn.textContent?.includes('모델 등록하기')
+      (btn) => btn.textContent?.includes('모델 등록')
     );
     expect(registerButton).toBeDefined();
 
@@ -767,18 +752,19 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       await userEvent.click(registerButton);
     }
 
-    // Verify openLoginModal was called (not navigation)
-    expect(mockUIStoreData.openLoginModal).toHaveBeenCalled();
-
-    // Verify NO navigation occurred
-    expect(mockPush).not.toHaveBeenCalled();
+    // Verify toast was shown and navigated to /explore (not /models/new)
+    expect(mockUIStoreData.addToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'info' })
+    );
+    expect(mockPush).toHaveBeenCalledWith('/explore');
+    expect(mockPush).not.toHaveBeenCalledWith('/models/new');
   });
 
   // =========================================================================
-  // TEST 5: 탐색하기 버튼 클릭 - /explore로 이동
+  // TEST 5: 모델 탐색 버튼 클릭 - /explore로 이동
   // =========================================================================
 
-  it('should navigate to /explore when clicking "탐색하기" button', async () => {
+  it('should navigate to /explore when clicking "모델 탐색" button', async () => {
     const { modelService } = await import('@/services/model');
     const { statsService } = await import('@/services/stats');
 
@@ -795,10 +781,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
       expect(screen.getByText('AI 인플루언서 마켓플레이스')).toBeInTheDocument();
     });
 
-    // Click "탐색하기" button
+    // Click "모델 탐색" button
     const buttons = screen.getAllByRole('button');
     const exploreButton = buttons.find(
-      (btn) => btn.textContent?.includes('탐색하기')
+      (btn) => btn.textContent?.includes('모델 탐색')
     );
     expect(exploreButton).toBeDefined();
 
@@ -871,11 +857,9 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
 
     render(<HomePage />);
 
-    // Wait for error to display
+    // Wait for error to display (redesigned component shows error directly)
     await waitFor(() => {
-      expect(
-        screen.getByText(new RegExp(`오류가 발생했습니다.*${errorMessage}`))
-      ).toBeInTheDocument();
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
   });
 
@@ -937,10 +921,11 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
 
     render(<HomePage />);
 
-    // Wait for empty state to display
+    // Wait for empty state to display (heading is split: "인기 " + <span>"모델"</span>)
     await waitFor(() => {
-      const sections = screen.getAllByText('인기 모델');
-      expect(sections[0]).toBeInTheDocument();
+      expect(screen.getByText((content, element) =>
+        element?.tagName === 'H2' && element?.textContent === '인기 모델'
+      )).toBeInTheDocument();
     });
 
     // Check for empty state message
@@ -980,8 +965,10 @@ describe('Home Page - Integration Tests (P2-S1-T2)', () => {
     // Check model with minimal fields (model-4)
     expect(screen.getByText('Popular Model 4')).toBeInTheDocument();
 
-    // Verify both sections are visible
-    const heading1 = screen.getByText('인기 모델');
+    // Verify both sections are visible (popular heading is split: "인기 " + <span>"모델"</span>)
+    const heading1 = screen.getByText((content, element) =>
+      element?.tagName === 'H2' && element?.textContent === '인기 모델'
+    );
     const heading2 = screen.getByText('최신 등록 모델');
     expect(heading1).toBeInTheDocument();
     expect(heading2).toBeInTheDocument();

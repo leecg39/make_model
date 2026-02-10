@@ -38,7 +38,7 @@ describe('DashboardNav', () => {
     render(<DashboardNav />);
 
     const modelsTab = screen.getByText('내 모델').closest('button');
-    expect(modelsTab).toHaveClass('bg-accent-neon');
+    expect(modelsTab).toHaveClass('bg-[#E882B2]');
   });
 
   it('navigates to correct route on tab click', async () => {

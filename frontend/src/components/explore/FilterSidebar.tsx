@@ -65,11 +65,12 @@ export function FilterSidebar({ isOpen, onClose, filters, onFilterChange }: Filt
       )}
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -320 }}
-        animate={{ x: isOpen ? 0 : -320 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#111] border-r border-white/10 z-50 lg:z-0 overflow-y-auto"
+      <aside
+        className={`
+          fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#111] border-r border-white/10 z-50 lg:z-0 overflow-y-auto
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
         aria-label="스타일 필터"
       >
         <div className="p-6">
@@ -155,7 +156,7 @@ export function FilterSidebar({ isOpen, onClose, filters, onFilterChange }: Filt
             필터 초기화
           </button>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 }

@@ -33,6 +33,20 @@ vi.mock('@/stores/auth', () => ({
   })),
 }));
 
+/**
+ * Mock Zustand UI store (used by SignupPage for addToast)
+ */
+vi.mock('@/stores/ui', () => ({
+  useUIStore: vi.fn(() => ({
+    addToast: vi.fn(),
+    removeToast: vi.fn(),
+    toasts: [],
+    isLoginModalOpen: false,
+    openLoginModal: vi.fn(),
+    closeLoginModal: vi.fn(),
+  })),
+}));
+
 describe('SignupPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -81,7 +95,7 @@ describe('SignupPage', () => {
 
     // Verify brand card is selected (has yellow border)
     const brandButton = brandCard.closest('button');
-    expect(brandButton).toHaveClass('border-[#c8ff00]');
+    expect(brandButton).toHaveClass('border-[#E882B2]');
 
     // Click next button
     const nextButton = screen.getByRole('button', { name: /다음/ });
@@ -89,7 +103,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Step 2: Fill in the form
@@ -165,7 +179,7 @@ describe('SignupPage', () => {
 
     // Verify creator card is selected
     const creatorButton = creatorCard.closest('button');
-    expect(creatorButton).toHaveClass('border-[#c8ff00]');
+    expect(creatorButton).toHaveClass('border-[#E882B2]');
 
     // Click next button
     const nextButton = screen.getByRole('button', { name: /다음/ });
@@ -173,7 +187,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Step 2: Fill in the form (no company name field for creator)
@@ -243,7 +257,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Fill form with 7-char password
@@ -306,7 +320,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Fill form
@@ -362,7 +376,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     const passwordInput = screen.getByLabelText(/^비밀번호$/);
@@ -414,7 +428,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Fill form with 1-char nickname
@@ -472,8 +486,8 @@ describe('SignupPage', () => {
       expect(errorMessages.length).toBeGreaterThan(0);
     });
 
-    // Verify we're still on Step 1 (check that step 2 header is not shown)
-    expect(screen.queryByText(/정보 입력/)).not.toBeInTheDocument();
+    // Verify we're still on Step 1 (email input should not be visible)
+    expect(screen.queryByLabelText(/이메일/)).not.toBeInTheDocument();
   });
 
   /**
@@ -508,7 +522,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Fill form WITHOUT company name
@@ -564,7 +578,7 @@ describe('SignupPage', () => {
 
     // Wait for Step 2
     await waitFor(() => {
-      expect(screen.getByText(/정보 입력/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/이메일/)).toBeInTheDocument();
     });
 
     // Fill form with mismatched passwords

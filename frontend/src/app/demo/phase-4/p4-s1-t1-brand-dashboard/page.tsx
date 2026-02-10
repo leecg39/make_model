@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { OrderTable } from '@/components/brand/OrderTable';
 import { OrderDetailModal } from '@/components/brand/OrderDetailModal';
 import { EmptyState } from '@/components/brand/EmptyState';
-import { DashboardNav, type DashboardTab } from '@/components/brand/DashboardNav';
+import { DashboardNav } from '@/components/brand/DashboardNav';
 import type { OrderListItem, OrderDetail } from '@/types/order';
 
 const MOCK_ORDERS: OrderListItem[] = [
@@ -76,7 +76,6 @@ const DEMO_STATES = {
 
 export default function BrandDashboardDemoPage() {
   const [state, setState] = useState<DemoState>('with-data');
-  const [activeTab, setActiveTab] = useState<DashboardTab>('orders');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentState = DEMO_STATES[state];
@@ -131,7 +130,7 @@ export default function BrandDashboardDemoPage() {
       {/* Dashboard Content */}
       <div className="flex">
         {/* Sidebar */}
-        <DashboardNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <DashboardNav />
 
         {/* Main Content */}
         <main className="flex-1 p-8">
@@ -144,37 +143,20 @@ export default function BrandDashboardDemoPage() {
               <p className="text-white/60">주문 내역과 찜한 모델을 관리하세요</p>
             </header>
 
-            {/* Content based on active tab */}
-            {activeTab === 'orders' && (
-              <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">주문 관리</h2>
-                {!currentState.isLoading && currentState.orders.length === 0 ? (
-                  <EmptyState onExploreClick={handleExploreClick} />
-                ) : (
-                  <OrderTable
-                    orders={currentState.orders}
-                    onRowClick={handleRowClick}
-                    onChatClick={handleChatClick}
-                    onDownloadClick={handleDownloadClick}
-                    isLoading={currentState.isLoading}
-                  />
-                )}
-              </div>
-            )}
-
-            {activeTab === 'favorites' && (
-              <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">찜 목록</h2>
-                <p className="text-white/60">찜 목록 기능 구현 예정</p>
-              </div>
-            )}
-
-            {activeTab === 'profile' && (
-              <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-white mb-4">프로필 설정</h2>
-                <p className="text-white/60">프로필 설정 기능 구현 예정</p>
-              </div>
-            )}
+            <div className="bg-bg-secondary border border-white/10 rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">주문 관리</h2>
+              {!currentState.isLoading && currentState.orders.length === 0 ? (
+                <EmptyState onExploreClick={handleExploreClick} />
+              ) : (
+                <OrderTable
+                  orders={currentState.orders}
+                  onRowClick={handleRowClick}
+                  onChatClick={handleChatClick}
+                  onDownloadClick={handleDownloadClick}
+                  isLoading={currentState.isLoading}
+                />
+              )}
+            </div>
           </div>
         </main>
       </div>
@@ -193,7 +175,6 @@ export default function BrandDashboardDemoPage() {
           {JSON.stringify(
             {
               state,
-              activeTab,
               isLoading: currentState.isLoading,
               ordersCount: currentState.orders.length,
               modalOpen: isModalOpen || state === 'modal-open',

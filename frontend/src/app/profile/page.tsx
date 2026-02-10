@@ -83,7 +83,7 @@ function ProfileContent() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   const handleDeleteAccount = async () => {
@@ -94,7 +94,7 @@ function ProfileContent() {
     setIsLoading(true);
     try {
       await authService.deleteAccount();
-      router.push('/login');
+      router.push('/auth/login');
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Failed to delete account' });
     } finally {

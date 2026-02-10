@@ -24,8 +24,11 @@ export default function CreatorModelsPage() {
         params: { creator_id: 'me' },
       });
       setModels(response.data.items);
-    } catch (error) {
-      console.error('Failed to fetch models:', error);
+    } catch (error: any) {
+      if (error?.code !== 'ERR_NETWORK' && error?.message !== 'Network Error') {
+        console.error('Failed to fetch models:', error);
+      }
+      setModels([]);
     } finally {
       setIsLoading(false);
     }

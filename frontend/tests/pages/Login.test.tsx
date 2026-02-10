@@ -439,14 +439,16 @@ describe('LoginPage', () => {
   });
 
   describe('T2.3 - Social login', () => {
-    // @TEST T2.3.1 - Google login button shows toast notification
-    it('should show toast notification when Google button is clicked', async () => {
+    // @TEST T2.3.1 - Google login button calls socialLogin
+    it('should call socialLogin when Google button is clicked', async () => {
       const user = userEvent.setup();
+      const mockSocialLogin = vi.fn().mockResolvedValue(undefined);
       const mockAddToast = vi.fn();
       const mockClearError = vi.fn();
 
       vi.mocked(useAuthStore).mockImplementation(() => ({
         login: vi.fn(),
+        socialLogin: mockSocialLogin,
         logout: vi.fn(),
         register: vi.fn(),
         fetchUser: vi.fn(),
@@ -475,20 +477,19 @@ describe('LoginPage', () => {
 
       await user.click(googleButton);
 
-      expect(mockAddToast).toHaveBeenCalledWith({
-        variant: 'info',
-        message: 'Google 로그인 준비 중입니다',
-      });
+      expect(mockSocialLogin).toHaveBeenCalledWith('google');
     });
 
-    // @TEST T2.3.2 - Kakao login button shows toast notification
-    it('should show toast notification when Kakao button is clicked', async () => {
+    // @TEST T2.3.2 - Kakao login button calls socialLogin
+    it('should call socialLogin when Kakao button is clicked', async () => {
       const user = userEvent.setup();
+      const mockSocialLogin = vi.fn().mockResolvedValue(undefined);
       const mockAddToast = vi.fn();
       const mockClearError = vi.fn();
 
       vi.mocked(useAuthStore).mockImplementation(() => ({
         login: vi.fn(),
+        socialLogin: mockSocialLogin,
         logout: vi.fn(),
         register: vi.fn(),
         fetchUser: vi.fn(),
@@ -517,10 +518,7 @@ describe('LoginPage', () => {
 
       await user.click(kakaoButton);
 
-      expect(mockAddToast).toHaveBeenCalledWith({
-        variant: 'info',
-        message: 'Kakao 로그인 준비 중입니다',
-      });
+      expect(mockSocialLogin).toHaveBeenCalledWith('kakao');
     });
   });
 
