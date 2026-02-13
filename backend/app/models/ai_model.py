@@ -3,7 +3,7 @@
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
 @SPEC docs/planning/04-database-design.md#aimodel-ai-모델---feat-1
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Integer, Float, DateTime, Boolean, Index, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -38,10 +38,10 @@ class AIModel(Base):
         String(20), default="draft", nullable=False  # draft, active, inactive
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships
@@ -74,7 +74,7 @@ class ModelImage(Base):
     display_order: Mapped[int] = mapped_column(Integer, nullable=False)
     is_thumbnail: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships
@@ -93,7 +93,7 @@ class ModelTag(Base):
     )
     tag: Mapped[str] = mapped_column(String(50), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships
@@ -114,7 +114,7 @@ class Favorite(Base):
         String(36), ForeignKey("ai_models.id", ondelete="CASCADE"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships

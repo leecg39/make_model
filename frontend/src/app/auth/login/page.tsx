@@ -67,7 +67,7 @@ export default function LoginPage() {
       } else {
         router.push('/');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
     }
   };
@@ -103,7 +103,7 @@ export default function LoginPage() {
       } else {
         router.push('/');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Social login error:', err);
     }
   };

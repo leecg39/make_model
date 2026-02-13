@@ -39,8 +39,8 @@ export default function ModelProfilePage() {
         modelService.incrementViewCount(modelId).catch(() => {
           // Ignore errors for view count
         });
-      } catch (err: any) {
-        setError(err.message || '모델 정보를 불러올 수 없습니다.');
+      } catch (err: unknown) {
+        setError((err as Error).message || '모델 정보를 불러올 수 없습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +55,7 @@ export default function ModelProfilePage() {
   };
 
   const handleLightboxNext = () => {
-    if (model && lightboxIndex < model.images.length - 1) {
+    if (model && model.images && lightboxIndex < model.images.length - 1) {
       setLightboxIndex(lightboxIndex + 1);
     }
   };
@@ -111,7 +111,7 @@ export default function ModelProfilePage() {
           <ModelHeader model={model} />
 
           {/* Portfolio Gallery */}
-          <PortfolioGallery images={model.images} onImageClick={handleImageClick} />
+          <PortfolioGallery images={model.images || []} onImageClick={handleImageClick} />
 
           {/* Creator Info */}
           <CreatorInfo creator={model.creator} />
@@ -120,7 +120,7 @@ export default function ModelProfilePage() {
 
       {/* Image Lightbox */}
       <ImageLightbox
-        images={model.images}
+        images={model.images || []}
         currentIndex={lightboxIndex}
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}

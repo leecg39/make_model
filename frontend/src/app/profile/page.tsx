@@ -44,8 +44,8 @@ function ProfileContent() {
       await fetchUser();
       setIsEditing(false);
       setMessage({ type: 'success', text: 'Profile updated successfully' });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile' });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: (error as Error).message || 'Failed to update profile' });
     } finally {
       setIsLoading(false);
     }
@@ -74,8 +74,8 @@ function ProfileContent() {
       setIsChangingPassword(false);
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setMessage({ type: 'success', text: 'Password changed successfully' });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to change password' });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: (error as Error).message || 'Failed to change password' });
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +95,8 @@ function ProfileContent() {
     try {
       await authService.deleteAccount();
       router.push('/auth/login');
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to delete account' });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: (error as Error).message || 'Failed to delete account' });
     } finally {
       setIsLoading(false);
     }

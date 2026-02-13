@@ -40,7 +40,7 @@ function ExplorePageContent() {
 
   const { favoriteIds, toggleFavorite } = useFavorites();
 
-  const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
+  const totalPages = data ? Math.ceil(data.total / (data.limit || 12)) : 1;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] lg:flex">

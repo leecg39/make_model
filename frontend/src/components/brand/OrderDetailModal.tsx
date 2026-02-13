@@ -15,6 +15,8 @@ interface OrderDetailModalProps {
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: '결제 대기',
+  accepted: '수락됨',
+  rejected: '거절됨',
   paid: '결제 완료',
   in_progress: '작업 중',
   review: '검토 중',
@@ -26,6 +28,7 @@ const PACKAGE_LABELS: Record<PackageType, string> = {
   basic: '베이직',
   standard: '스탠다드',
   premium: '프리미엄',
+  exclusive: '익스클루시브',
 };
 
 function formatCurrency(amount: number): string {

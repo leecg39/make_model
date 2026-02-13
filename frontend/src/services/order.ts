@@ -16,7 +16,8 @@ import type {
 } from '@/types/order';
 
 function isNetworkError(err: unknown): boolean {
-  return (err as any)?.code === 'ERR_NETWORK' || (err as any)?.message === 'Network Error';
+  const e = err as Error & { code?: string };
+  return e?.code === 'ERR_NETWORK' || e?.message === 'Network Error';
 }
 
 export const orderService = {

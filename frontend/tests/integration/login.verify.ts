@@ -23,7 +23,7 @@ const FRONTEND_LOGIN_URL = '/api/v1/auth/login/json';
 export const EndpointCheck = {
   backend: BACKEND_LOGIN_ENDPOINT,
   frontend: FRONTEND_LOGIN_URL,
-  match: BACKEND_LOGIN_ENDPOINT === FRONTEND_LOGIN_URL,
+  match: (BACKEND_LOGIN_ENDPOINT as string) === (FRONTEND_LOGIN_URL as string),
   issue: `URL MISMATCH: Backend endpoint is "${BACKEND_LOGIN_ENDPOINT}" but frontend calls "${FRONTEND_LOGIN_URL}"`,
 };
 

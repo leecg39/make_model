@@ -36,8 +36,8 @@ export default function HomePage() {
         const popular = await modelService.getPopularModels();
         setPopularModels(popular);
         setPopularError(null);
-      } catch (error: any) {
-        setPopularError(error.message || '인기 모델을 불러올 수 없습니다');
+      } catch (error: unknown) {
+        setPopularError((error as Error).message || '인기 모델을 불러올 수 없습니다');
         setPopularModels([]);
       } finally {
         setPopularLoading(false);
@@ -49,8 +49,8 @@ export default function HomePage() {
         const recent = await modelService.getRecentModels();
         setRecentModels(recent);
         setRecentError(null);
-      } catch (error: any) {
-        setRecentError(error.message || '최신 모델을 불러올 수 없습니다');
+      } catch (error: unknown) {
+        setRecentError((error as Error).message || '최신 모델을 불러올 수 없습니다');
         setRecentModels([]);
       } finally {
         setRecentLoading(false);
@@ -62,8 +62,8 @@ export default function HomePage() {
         const platformStats = await statsService.getPlatformStats();
         setStats(platformStats);
         setStatsError(null);
-      } catch (error: any) {
-        setStatsError(error.message || '통계를 불러올 수 없습니다');
+      } catch (error: unknown) {
+        setStatsError((error as Error).message || '통계를 불러올 수 없습니다');
         setStats(null);
       } finally {
         setStatsLoading(false);

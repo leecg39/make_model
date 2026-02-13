@@ -56,7 +56,7 @@ function FavoritesContent() {
             </div>
           ) : (
             <ModelGrid
-              models={favorites.map((fav) => fav.model)}
+              models={favorites.map((fav) => fav.model).filter((m): m is NonNullable<typeof m> => !!m)}
               favoriteIds={favoriteIds}
               onToggleFavorite={toggleFavorite}
             />

@@ -22,6 +22,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   nickname: string;
+  name?: string;
   role: 'brand' | 'creator';
   company_name?: string;
 }

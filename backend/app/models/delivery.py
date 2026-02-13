@@ -3,7 +3,7 @@
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
 @SPEC docs/planning/04-database-design.md#deliveryfile-납품-파일
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, Integer, DateTime, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
@@ -24,7 +24,7 @@ class DeliveryFile(Base):
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships

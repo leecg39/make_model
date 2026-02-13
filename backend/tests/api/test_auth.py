@@ -17,8 +17,8 @@ LOGIN_URL = "/api/auth/login"
 LOGOUT_URL = "/api/auth/logout"
 REFRESH_URL = "/api/auth/refresh"
 ME_URL = "/api/users/me"
-SOCIAL_GOOGLE_URL = "/api/auth/social/google"
-SOCIAL_KAKAO_URL = "/api/auth/social/kakao"
+GOOGLE_LOGIN_URL = "/api/auth/google"
+KAKAO_LOGIN_URL = "/api/auth/kakao"
 PASSWORD_CHANGE_URL = "/api/auth/password/change"
 
 
@@ -286,20 +286,32 @@ async def test_password_change(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_social_google_stub(client: AsyncClient):
-    """Google social login stub returns 501."""
-    resp = await client.post(
-        SOCIAL_GOOGLE_URL,
-        json={"access_token": "google-token"},
-    )
-    assert resp.status_code == 501
+async def test_google_login_redirect(client: AsyncClient):
+    """Google login redirects to Google OAuth when configured."""
+    resp = await client.get(GOOGLE_LOGIN_URL, follow_redirects=False)
+    # Returns 503 when GOOGLE_CLIENT_ID is empty (not configured)
+    assert resp.status_code == 503
 
 
 @pytest.mark.asyncio
-async def test_social_kakao_stub(client: AsyncClient):
-    """Kakao social login stub returns 501."""
-    resp = await client.post(
-        SOCIAL_KAKAO_URL,
-        json={"access_token": "kakao-token"},
-    )
-    assert resp.status_code == 501
+async def test_kakao_login_redirect(client: AsyncClient):
+    """Kakao login redirects to Kakao OAuth when configured."""
+    resp = await client.get(KAKAO_LOGIN_URL, follow_redirects=False)
+    # Returns 503 when KAKAO_CLIENT_ID is empty (not configured)
+    assert resp.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_google_callback_no_code(client: AsyncClient):
+    """Google callback without code redirects to login with error."""
+    resp = await client.get("/api/auth/google/callback", follow_redirects=False)
+    assert resp.status_code == 307
+    assert "error=social_login_failed" in resp.headers["location"]
+
+
+@pytest.mark.asyncio
+async def test_kakao_callback_no_code(client: AsyncClient):
+    """Kakao callback without code redirects to login with error."""
+    resp = await client.get("/api/auth/kakao/callback", follow_redirects=False)
+    assert resp.status_code == 307
+    assert "error=social_login_failed" in resp.headers["location"]

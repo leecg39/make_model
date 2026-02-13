@@ -3,7 +3,7 @@
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
 @SPEC docs/planning/04-database-design.md#chatmessage-채팅-메시지---feat-3
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,7 +28,7 @@ class ChatMessage(Base):
     attachment_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships

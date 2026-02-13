@@ -30,9 +30,9 @@ export function ModelGrid({ models, favoriteIds, onToggleFavorite }: ModelGridPr
           <ModelCard
             id={model.id}
             name={model.name}
-            thumbnailUrl={model.thumbnail_url}
-            style={model.style}
-            rating={model.rating}
+            thumbnailUrl={model.thumbnail_url || ''}
+            style={model.style || ''}
+            rating={model.rating ?? 0}
             isFavorite={favoriteIds.has(model.id)}
             onToggleFavorite={onToggleFavorite}
           />

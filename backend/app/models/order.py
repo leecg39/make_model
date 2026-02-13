@@ -3,7 +3,7 @@
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
 @SPEC docs/planning/04-database-design.md#order-섭외-주문---feat-2
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Integer, Boolean, DateTime, ForeignKey, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -47,10 +47,10 @@ class Order(Base):
     accepted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships
@@ -101,7 +101,7 @@ class Payment(Base):
     transaction_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     # Relationships

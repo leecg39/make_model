@@ -5,4 +5,5 @@ export interface PlatformStats {
   total_models: number;
   total_bookings: number;
   total_brands: number;
+  total_creators?: number;
 }

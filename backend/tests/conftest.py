@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.base import Base
 from app.db.session import get_db
-from app.main import app
+from app.main import app, limiter
 
 # ---------------------------------------------------------------------------
 # Event loop fixture (required for pytest-asyncio)
@@ -83,7 +83,9 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
         yield db_session
 
     app.dependency_overrides[get_db] = _override_get_db
+    limiter.enabled = False  # Disable rate limiting in tests
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
+    limiter.enabled = True
     app.dependency_overrides.clear()

@@ -226,10 +226,26 @@ export const authService = {
    * Falls back to mock auth when backend is unavailable.
    */
   async socialLogin(provider: 'google' | 'kakao'): Promise<AuthResponse> {
+    const ALLOWED_PROVIDERS = ['google', 'kakao'] as const;
+    if (!ALLOWED_PROVIDERS.includes(provider)) {
+      throw new Error('Invalid OAuth provider');
+    }
+
+    const ALLOWED_ORIGINS = [
+      'http://localhost:8000',
+      'http://localhost:3000',
+    ];
+    try {
+      const apiOrigin = new URL(API_URL).origin;
+      if (!ALLOWED_ORIGINS.includes(apiOrigin)) {
+        throw new Error('Invalid API URL origin');
+      }
+    } catch {
+      throw new Error('OAuth configuration error');
+    }
+
     if (await isBackendAvailable()) {
-      // Real OAuth flow: redirect to backend OAuth endpoint
       window.location.href = `${API_URL}/api/auth/${provider}`;
-      // Won't reach here - browser redirects
       return { access_token: '', token_type: 'bearer' };
     }
 

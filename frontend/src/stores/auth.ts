@@ -47,8 +47,8 @@ export const useAuthStore = create<AuthStore>()(
           const response = await authService.login(data);
           set({ token: response.access_token });
           await get().fetchUser();
-        } catch (error: any) {
-          set({ error: error.message || 'Login failed' });
+        } catch (error: unknown) {
+          set({ error: (error as Error).message || 'Login failed' });
           throw error;
         } finally {
           set({ isLoading: false });
@@ -61,8 +61,8 @@ export const useAuthStore = create<AuthStore>()(
           const response = await authService.socialLogin(provider);
           set({ token: response.access_token });
           await get().fetchUser();
-        } catch (error: any) {
-          set({ error: error.message || 'Social login failed' });
+        } catch (error: unknown) {
+          set({ error: (error as Error).message || 'Social login failed' });
           throw error;
         } finally {
           set({ isLoading: false });
@@ -74,8 +74,8 @@ export const useAuthStore = create<AuthStore>()(
         try {
           await authService.register(data);
           await get().login({ email: data.email, password: data.password });
-        } catch (error: any) {
-          set({ error: error.message || 'Registration failed' });
+        } catch (error: unknown) {
+          set({ error: (error as Error).message || 'Registration failed' });
           throw error;
         } finally {
           set({ isLoading: false });

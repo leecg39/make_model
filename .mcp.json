@@ -15,6 +15,12 @@
         "@playwright/mcp@latest"
       ],
       "defer_loading": true
+    },
+    "qmd": {
+      "command": "/Users/user01/.bun/bin/qmd",
+      "args": [
+        "mcp"
+      ]
     }
   }
 }

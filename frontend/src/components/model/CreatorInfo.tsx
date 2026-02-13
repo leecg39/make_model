@@ -3,13 +3,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { ModelCreator } from '@/types/model';
+import type { ModelCreator, Creator } from '@/types/model';
 
 interface CreatorInfoProps {
-  creator: ModelCreator;
+  creator?: ModelCreator | Creator;
 }
 
 export function CreatorInfo({ creator }: CreatorInfoProps) {
+  if (!creator) {
+    return null;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

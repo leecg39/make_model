@@ -1,21 +1,27 @@
-# @TASK P1-R1-T1 - Authentication endpoints (signup, login JSON, refresh, social stubs)
+# @TASK P1-R1-T1 - Authentication endpoints (signup, login, refresh, social OAuth)
 # @SPEC docs/planning/02-trd.md#auth-api
 """Authentication endpoints.
 
 Routes:
-    POST /api/auth/signup      - Register new user
-    POST /api/auth/login       - Login with email + password (JSON body)
-    POST /api/auth/logout      - Logout (revoke refresh tokens)
-    POST /api/auth/refresh     - Refresh access token
-    POST /api/auth/password/change - Change password
-    POST /api/auth/social/google   - Google social login (stub)
-    POST /api/auth/social/kakao    - Kakao social login (stub)
+    POST /api/auth/signup           - Register new user
+    POST /api/auth/login            - Login with email + password (JSON body)
+    POST /api/auth/logout           - Logout (revoke refresh tokens)
+    POST /api/auth/refresh          - Refresh access token
+    POST /api/auth/password/change  - Change password
+    GET  /api/auth/google           - Redirect to Google OAuth
+    GET  /api/auth/google/callback  - Google OAuth callback
+    GET  /api/auth/kakao            - Redirect to Kakao OAuth
+    GET  /api/auth/kakao/callback   - Kakao OAuth callback
 """
+import logging
 from typing import Annotated
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.deps import CurrentUser
 from app.core.security import verify_password
 from app.db.session import get_db
@@ -24,7 +30,6 @@ from app.schemas.auth import (
     PasswordChangeRequest,
     RefreshTokenRequest,
     RegisterRequest,
-    SocialLoginRequest,
     TokenResponse,
 )
 from app.schemas.user import UserResponse
@@ -37,6 +42,15 @@ from app.services.auth import (
     revoke_refresh_tokens,
     update_password,
 )
+from app.services.oauth import (
+    find_or_create_social_user,
+    get_google_authorize_url,
+    get_google_user_info,
+    get_kakao_authorize_url,
+    get_kakao_user_info,
+)
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -48,6 +62,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
+    request: Request,
     user_in: RegisterRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -69,6 +84,7 @@ async def signup(
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
+    request: Request,
     login_data: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -110,6 +126,7 @@ async def logout(
 
 @router.post("/refresh")
 async def refresh(
+    request: Request,
     body: RefreshTokenRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -150,17 +167,93 @@ async def change_password(
 
 
 # ---------------------------------------------------------------------------
-# Social login stubs
+# Google OAuth
 # ---------------------------------------------------------------------------
 
 
-@router.post("/social/google", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def social_google(body: SocialLoginRequest):
-    """Google social login (not yet implemented)."""
-    return {"detail": "Google social login is not yet implemented"}
+@router.get("/google")
+async def google_login():
+    """Redirect user to Google OAuth authorization page."""
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured",
+        )
+    return RedirectResponse(url=get_google_authorize_url())
 
 
-@router.post("/social/kakao", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def social_kakao(body: SocialLoginRequest):
-    """Kakao social login (not yet implemented)."""
-    return {"detail": "Kakao social login is not yet implemented"}
+@router.get("/google/callback")
+async def google_callback(
+    code: str = Query(None),
+    error: str = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Handle Google OAuth callback."""
+    frontend_login = f"{settings.FRONTEND_URL}/auth/login"
+
+    if error or not code:
+        return RedirectResponse(url=f"{frontend_login}?error=social_login_failed")
+
+    user_info = await get_google_user_info(code)
+    if not user_info or not user_info.get("email"):
+        return RedirectResponse(url=f"{frontend_login}?error=social_login_failed")
+
+    user = await find_or_create_social_user(
+        db,
+        provider=user_info["provider"],
+        social_id=user_info["social_id"],
+        email=user_info["email"],
+        name=user_info["name"],
+        profile_image=user_info.get("profile_image"),
+    )
+
+    access_token, refresh_token = await create_tokens(db, user)
+    params = urlencode({"token": access_token, "refresh_token": refresh_token})
+    return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth/callback?{params}")
+
+
+# ---------------------------------------------------------------------------
+# Kakao OAuth
+# ---------------------------------------------------------------------------
+
+
+@router.get("/kakao")
+async def kakao_login():
+    """Redirect user to Kakao OAuth authorization page."""
+    if not settings.KAKAO_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Kakao OAuth is not configured",
+        )
+    return RedirectResponse(url=get_kakao_authorize_url())
+
+
+@router.get("/kakao/callback")
+async def kakao_callback(
+    code: str = Query(None),
+    error: str = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """Handle Kakao OAuth callback."""
+    frontend_login = f"{settings.FRONTEND_URL}/auth/login"
+
+    if error or not code:
+        return RedirectResponse(url=f"{frontend_login}?error=social_login_failed")
+
+    user_info = await get_kakao_user_info(code)
+    if not user_info:
+        return RedirectResponse(url=f"{frontend_login}?error=social_login_failed")
+
+    email = user_info.get("email")
+    user = await find_or_create_social_user(
+        db,
+        provider=user_info["provider"],
+        social_id=user_info["social_id"],
+        email=email or "",
+        name=user_info["name"],
+        profile_image=user_info.get("profile_image"),
+    )
+
+    access_token, refresh_token = await create_tokens(db, user)
+    params = urlencode({"token": access_token, "refresh_token": refresh_token})
+    return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth/callback?{params}")

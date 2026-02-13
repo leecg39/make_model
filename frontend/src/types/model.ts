@@ -26,6 +26,9 @@ export interface Creator {
   id: string;
   display_name: string;
   profile_picture_url?: string;
+  email?: string;
+  nickname?: string | null;
+  profile_image?: string | null;
 }
 
 export interface AIModel {
@@ -70,6 +73,7 @@ export interface Favorite {
   id: string;
   user_id: string;
   model_id: string;
+  model?: AIModel;
   created_at: string;
 }
 

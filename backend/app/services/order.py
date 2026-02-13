@@ -14,7 +14,7 @@ State machine:
 @TEST tests/api/test_orders.py
 """
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import select, func
@@ -62,7 +62,7 @@ async def _generate_order_number(db: AsyncSession) -> str:
     Uses today's date and counts existing orders for today to determine
     the sequence number.
     """
-    today = datetime.utcnow().strftime("%Y%m%d")
+    today = datetime.now(timezone.utc).strftime("%Y%m%d")
     prefix = f"ORD-{today}-"
 
     # Count orders with today's prefix
@@ -264,7 +264,7 @@ async def update_order_status(
 
     # Apply transition
     order.status = new_status
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if new_status == "accepted":
         order.accepted_at = now

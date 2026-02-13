@@ -13,7 +13,7 @@ Business rules:
 """
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import select
@@ -195,7 +195,7 @@ async def process_webhook(
     payment.status = new_status
 
     if new_status == "completed":
-        payment.paid_at = datetime.utcnow()
+        payment.paid_at = datetime.now(timezone.utc)
 
     await db.commit()
     await db.refresh(payment)

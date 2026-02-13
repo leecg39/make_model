@@ -54,8 +54,8 @@ export default function CreatorProfilePage() {
       await fetchUser();
       setIsEditing(false);
       setMessage({ type: 'success', text: '프로필이 업데이트되었습니다' });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || '프로필 업데이트에 실패했습니다' });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: (error as Error).message || '프로필 업데이트에 실패했습니다' });
     } finally {
       setIsLoading(false);
     }
@@ -84,8 +84,8 @@ export default function CreatorProfilePage() {
       setIsChangingPassword(false);
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setMessage({ type: 'success', text: '비밀번호가 변경되었습니다' });
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || '비밀번호 변경에 실패했습니다' });
+    } catch (error: unknown) {
+      setMessage({ type: 'error', text: (error as Error).message || '비밀번호 변경에 실패했습니다' });
     } finally {
       setIsLoading(false);
     }

@@ -40,7 +40,9 @@ export default function RegisterPage() {
       await register({
         email: formData.email,
         password: formData.password,
+        nickname: formData.name || formData.email.split('@')[0],
         name: formData.name || undefined,
+        role: 'brand',
       });
       router.push('/');
     } catch {

@@ -4,7 +4,7 @@
 @TASK P1-R1-T1 - Auth/Users API (is_active, hashed_password alias)
 @SPEC docs/planning/04-database-design.md#user-사용자---feat-0
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import Boolean, String, DateTime, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -35,14 +35,20 @@ class User(Base):
     company_name: Mapped[Optional[str]] = mapped_column(
         String(100), nullable=True
     )
+    social_provider: Mapped[Optional[str]] = mapped_column(
+        String(20), nullable=True
+    )
+    social_id: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
     deleted_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime, nullable=True
