@@ -37,6 +37,8 @@ htmlcov/
 # Misc
 tmp/
 temp/
+.playwright-mcp/
+picture_01/
 
 # SQLite database
 *.db
