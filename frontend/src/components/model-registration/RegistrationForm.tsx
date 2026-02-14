@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ImageUploader } from './ImageUploader';
+import { AIImageGenerator } from './AIImageGenerator';
 import { AIAutoGenerate } from './AIAutoGenerate';
 import { PreviewButton } from './PreviewButton';
 import type { ModelCreateRequest, AIAnalysisResult, ImagePreviewItem } from '@/types/model-registration';
@@ -97,6 +97,30 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
     }));
   };
 
+  const handleGeneratedImageAdd = (url: string, prompt: string, size: string) => {
+    const nextItem: ImagePreviewItem = {
+      id: `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      preview: url,
+      display_order: images.length,
+      is_thumbnail: images.length === 0,
+      source: 'generated',
+      prompt,
+      size,
+    };
+
+    setImages((prev) => [...prev, nextItem]);
+    if (errors.images) {
+      setErrors((prev) => ({ ...prev, images: '' }));
+    }
+  };
+
+  const handleImagesChange = (nextImages: ImagePreviewItem[]) => {
+    setImages(nextImages);
+    if (errors.images) {
+      setErrors((prev) => ({ ...prev, images: '' }));
+    }
+  };
+
   // 유효성 검사
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -146,7 +170,12 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
       {/* 이미지 업로드 섹션 */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-white">이미지 업로드</h2>
-        <ImageUploader images={images} onImagesChange={setImages} maxImages={10} />
+        <AIImageGenerator
+          onGenerated={handleGeneratedImageAdd}
+          images={images}
+          onImagesChange={handleImagesChange}
+          disabled={isSubmitting}
+        />
         {errors.images && (
           <p className="text-red-400 text-sm" role="alert">
             {errors.images}

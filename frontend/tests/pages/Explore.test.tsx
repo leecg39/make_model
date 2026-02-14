@@ -130,6 +130,22 @@ describe('ExplorePage', () => {
     });
   });
 
+  it('필터 사이드바 상단에 홈 이동 버튼이 렌더링된다', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ExplorePage />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      const homeLink = screen.getByRole('link', { name: /홈으로 이동/i });
+      expect(homeLink).toHaveTextContent('Make_Model');
+      expect(homeLink).toHaveAttribute('href', '/');
+    });
+  });
+
   it('검색바가 렌더링된다', async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 

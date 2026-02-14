@@ -37,13 +37,19 @@ export default function RegisterPage() {
     }
 
     try {
-      await register({
+      const result = await register({
         email: formData.email,
         password: formData.password,
         nickname: formData.name || formData.email.split('@')[0],
         name: formData.name || undefined,
         role: 'brand',
       });
+
+      if (result.requiresEmailVerification) {
+        router.push(`/auth/login?verification=pending&email=${encodeURIComponent(formData.email)}`);
+        return;
+      }
+
       router.push('/');
     } catch {
       // Error is handled by store

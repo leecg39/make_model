@@ -27,6 +27,12 @@ export interface RegisterRequest {
   company_name?: string;
 }
 
+export interface RegisterResult {
+  user: User;
+  requiresEmailVerification: boolean;
+  accessToken?: string;
+}
+
 export interface AuthResponse {
   access_token: string;
   token_type: string;

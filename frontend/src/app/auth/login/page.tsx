@@ -2,20 +2,26 @@
 // @SPEC Phase 1 Login Screen
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth';
 import { useUIStore } from '@/stores/ui';
 import { motion } from 'framer-motion';
+import { isMockAuthMode } from '@/lib/auth-mode';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, socialLogin, isLoading, error, clearError } = useAuthStore();
   const { addToast } = useUIStore();
+  const mockMode = isMockAuthMode();
+
+  const isVerificationPending = searchParams.get('verification') === 'pending';
+  const prefillEmail = searchParams.get('email') || '';
 
   const [formData, setFormData] = useState({
-    email: '',
+    email: prefillEmail,
     password: '',
   });
 
@@ -23,6 +29,17 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (!prefillEmail) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      email: prev.email || prefillEmail,
+    }));
+  }, [prefillEmail]);
 
   const validateForm = () => {
     const errors = { email: '', password: '' };
@@ -86,6 +103,16 @@ export default function LoginPage() {
     }
   };
 
+  const handleMockAccountFill = (role: 'brand' | 'creator') => {
+    const account = role === 'brand'
+      ? { email: 'brand@test.com', password: 'password123' }
+      : { email: 'creator@test.com', password: 'password123' };
+
+    setFormData(account);
+    setFormErrors({ email: '', password: '' });
+    clearError();
+  };
+
   const handleSocialLogin = async (provider: 'google' | 'kakao') => {
     clearError();
     try {
@@ -144,6 +171,18 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <div className="bg-[#111] rounded-2xl border border-white/10 p-8 backdrop-blur-sm">
+          {isVerificationPending && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 rounded-lg bg-[#E882B2]/10 border border-[#E882B2]/30 p-4"
+            >
+              <p className="text-sm text-[#f7bad4] font-medium">
+                이메일 인증을 완료한 뒤 로그인해주세요.
+              </p>
+            </motion.div>
+          )}
+
           {/* Global Error Message */}
           {error && (
             <motion.div
@@ -228,6 +267,28 @@ export default function LoginPage() {
                 비밀번호를 잊으셨나요?
               </button>
             </div>
+
+            {mockMode && (
+              <div className="rounded-lg border border-[#E882B2]/30 bg-[#E882B2]/10 p-3">
+                <p className="text-xs text-[#f7bad4] mb-2">Mock 로그인 모드</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleMockAccountFill('brand')}
+                    className="flex-1 py-2 text-xs rounded-md border border-white/15 text-white/80 hover:border-[#E882B2] hover:text-[#E882B2] transition-colors"
+                  >
+                    브랜드 계정 사용
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMockAccountFill('creator')}
+                    className="flex-1 py-2 text-xs rounded-md border border-white/15 text-white/80 hover:border-[#E882B2] hover:text-[#E882B2] transition-colors"
+                  >
+                    크리에이터 계정 사용
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Submit Button */}
             <motion.button

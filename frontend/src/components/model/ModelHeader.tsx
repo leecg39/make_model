@@ -27,7 +27,10 @@ export function ModelHeader({ model }: ModelHeaderProps) {
   useEffect(() => {
     if (user) {
       favoriteService.isFavorited(model.id).then(setIsFavorited);
+      return;
     }
+
+    setIsFavorited(false);
   }, [user, model.id]);
 
   const handleBookingRequest = () => {
@@ -79,10 +82,34 @@ export function ModelHeader({ model }: ModelHeaderProps) {
       return;
     }
 
+    const creatorEmail = model.creator?.email;
+    if (!creatorEmail) {
+      addToast({
+        variant: 'error',
+        message: '문의 가능한 이메일 정보를 찾을 수 없습니다.',
+      });
+      return;
+    }
+
+    const subject = encodeURIComponent(`[MAKE MODEL 문의] ${model.name} 모델 협업 문의`);
+    const body = encodeURIComponent(
+      [
+        `안녕하세요, ${model.name} 모델 협업 문의드립니다.`,
+        '',
+        `모델 ID: ${model.id}`,
+        `요청자 이메일: ${user.email}`,
+      ].join('\n')
+    );
+
     addToast({
       variant: 'info',
-      message: '문의하기 기능 준비 중입니다.',
+      message: '기본 메일 앱으로 문의를 연결합니다.',
     });
+
+    const isTestEnv = typeof process !== 'undefined' && process.env.VITEST === 'true';
+    if (typeof window !== 'undefined' && !isTestEnv) {
+      window.location.href = `mailto:${creatorEmail}?subject=${subject}&body=${body}`;
+    }
   };
 
   const getGenderLabel = (gender: string | null) => {

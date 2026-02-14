@@ -3,6 +3,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import type { ModelStyle, ModelGender, ModelAgeRange } from '@/types/model';
 
 interface FilterSidebarProps {
@@ -74,6 +75,14 @@ export function FilterSidebar({ isOpen, onClose, filters, onFilterChange }: Filt
         aria-label="스타일 필터"
       >
         <div className="p-6">
+          <Link
+            href="/"
+            className="flex items-center justify-center w-full mb-4 px-4 py-2.5 rounded-lg bg-[#E882B2] text-black font-semibold tracking-wide hover:bg-[#f598c4] transition-colors"
+            aria-label="홈으로 이동"
+          >
+            Make_Model
+          </Link>
+
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-white">필터</h2>

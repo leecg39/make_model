@@ -476,7 +476,7 @@ describe('ModelProfilePage', () => {
 
       expect(mockAddToast).toHaveBeenCalledWith({
         variant: 'info',
-        message: expect.stringContaining('준비'),
+        message: expect.stringContaining('메일'),
       });
     });
   });

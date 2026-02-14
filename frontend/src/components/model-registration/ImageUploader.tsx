@@ -99,9 +99,8 @@ export function ImageUploader({
   // 이미지 삭제
   const handleRemove = (id: string) => {
     const updated = images.filter((img) => img.id !== id);
-    // 삭제된 이미지의 preview URL 해제
     const removed = images.find((img) => img.id === id);
-    if (removed) {
+    if (removed && removed.preview.startsWith('blob:')) {
       URL.revokeObjectURL(removed.preview);
     }
     onImagesChange(updated);
@@ -216,6 +215,12 @@ export function ImageUploader({
                 {image.is_thumbnail && (
                   <div className="absolute top-2 left-2 bg-accent-neon text-black text-xs font-semibold px-2 py-1 rounded">
                     썸네일
+                  </div>
+                )}
+
+                {image.source === 'generated' && (
+                  <div className="absolute top-2 left-2 mt-8 bg-black/70 text-white text-[10px] font-medium px-2 py-1 rounded">
+                    AI 생성
                   </div>
                 )}
 

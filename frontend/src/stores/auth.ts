@@ -18,7 +18,7 @@ interface AuthStore {
   // Actions
   login: (data: LoginRequest) => Promise<void>;
   socialLogin: (provider: 'google' | 'kakao') => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
+  register: (data: RegisterRequest) => Promise<{ requiresEmailVerification: boolean }>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
   clearError: () => void;
@@ -72,8 +72,22 @@ export const useAuthStore = create<AuthStore>()(
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null });
         try {
-          await authService.register(data);
+          const result = await authService.register(data);
+
+          if (result.requiresEmailVerification) {
+            authLib.removeToken();
+            set({ user: null, token: null });
+            return { requiresEmailVerification: true };
+          }
+
+          if (result.accessToken) {
+            set({ token: result.accessToken });
+            await get().fetchUser();
+            return { requiresEmailVerification: false };
+          }
+
           await get().login({ email: data.email, password: data.password });
+          return { requiresEmailVerification: false };
         } catch (error: unknown) {
           set({ error: (error as Error).message || 'Registration failed' });
           throw error;

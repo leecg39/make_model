@@ -34,13 +34,28 @@ export interface AIAnalysisResult {
   description: string;
 }
 
+export interface ZaiGenerationRequest {
+  prompt: string;
+  size: string;
+}
+
+export interface ZaiGenerationResult {
+  url: string;
+  created: number;
+  fallback?: boolean;
+  warning?: string;
+}
+
 /**
  * 이미지 미리보기 아이템
  */
 export interface ImagePreviewItem {
   id: string; // 로컬 임시 ID
-  file: File;
+  file?: File;
   preview: string; // data URL
   display_order: number;
   is_thumbnail: boolean;
+  source?: 'upload' | 'generated';
+  prompt?: string;
+  size?: string;
 }

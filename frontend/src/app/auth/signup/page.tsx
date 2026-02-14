@@ -184,13 +184,21 @@ export default function SignupPage() {
     clearError();
 
     try {
-      await register({
+      const result = await register({
         email: formData.email,
         password: formData.password,
         nickname: formData.nickname,
         role: formData.role!,
         company_name: formData.role === 'brand' ? formData.company_name : undefined,
       });
+
+      if (result.requiresEmailVerification) {
+        addToast({
+          variant: 'success',
+          message: '인증 메일을 보냈습니다. 이메일 인증 후 로그인해주세요.',
+        });
+        router.push(`/auth/login?verification=pending&email=${encodeURIComponent(formData.email)}`);
+      }
 
       // 성공 시 자동 로그인 후 리다이렉트 (useEffect에서 처리)
     } catch (err) {

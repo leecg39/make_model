@@ -32,22 +32,36 @@ export default function NewModelPage() {
     setError(null);
 
     try {
-      // 1. 모델 생성
       const createdModel = await modelRegistrationService.createModel(data);
 
-      // 2. 이미지 업로드 (실제로는 파일 업로드 → S3 → URL 받아서 등록)
-      // MVP: 이미지 업로드는 클라이언트에서 직접 처리하지 않고,
-      // 실제로는 presigned URL을 받아서 S3에 업로드 후 백엔드에 URL 전달
-      // 여기서는 mock으로 처리
+      const resolveImageUrl = async (image: ImagePreviewItem): Promise<string> => {
+        if (image.source === 'generated') {
+          return image.preview;
+        }
+
+        if (!image.file) {
+          return image.preview;
+        }
+
+        const file = image.file;
+
+        return await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('이미지 변환에 실패했습니다.'));
+          reader.readAsDataURL(file);
+        });
+      };
+
       for (const image of images) {
+        const imageUrl = await resolveImageUrl(image);
         await modelRegistrationService.uploadImage(createdModel.id, {
-          file_url: image.preview, // 실제로는 S3 URL
+          file_url: imageUrl,
           display_order: image.display_order,
           is_thumbnail: image.is_thumbnail,
         });
       }
 
-      // 3. 성공 시 모델 프로필로 이동
       router.push(`/models/${createdModel.id}`);
     } catch (err) {
       const error = err as Error;

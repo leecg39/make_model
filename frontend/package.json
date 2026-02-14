@@ -16,6 +16,7 @@
     "e2e:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
     "@tanstack/react-query": "^5.90.20",
     "agentation": "^2.1.1",
     "axios": "^1.13.4",

@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { PackageOption } from '@/types/booking';
+import { BOOKING_PACKAGES } from '@/lib/package-options';
 
 interface Step3PackagePaymentProps {
   selectedModel: {
@@ -19,34 +20,6 @@ interface Step3PackagePaymentProps {
   onPayment: (packageType: string, totalPrice: number, imageCount: number, isExclusive: boolean, exclusiveMonths?: number) => void;
   isLoading?: boolean;
 }
-
-const PACKAGES: PackageOption[] = [
-  {
-    type: 'standard',
-    name: 'Standard',
-    imageCount: 3,
-    price: 50000,
-    isExclusive: false,
-    description: '기본 3장',
-  },
-  {
-    type: 'premium',
-    name: 'Premium',
-    imageCount: 5,
-    price: 100000,
-    isExclusive: false,
-    description: '프리미엄 5장',
-  },
-  {
-    type: 'exclusive',
-    name: 'Exclusive',
-    imageCount: 10,
-    price: 200000,
-    isExclusive: true,
-    exclusiveMonths: 3,
-    description: '독점 10장 (3개월)',
-  },
-];
 
 export default function Step3PackagePayment({ selectedModel, onPayment, isLoading }: Step3PackagePaymentProps) {
   const [selectedPackage, setSelectedPackage] = useState<PackageOption | null>(null);
@@ -94,7 +67,7 @@ export default function Step3PackagePayment({ selectedModel, onPayment, isLoadin
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {PACKAGES.map((pkg, index) => (
+          {BOOKING_PACKAGES.map((pkg, index) => (
             <motion.label
               key={pkg.type}
               initial={{ opacity: 0, y: 20 }}

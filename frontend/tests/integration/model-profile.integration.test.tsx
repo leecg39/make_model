@@ -361,7 +361,7 @@ describe('Model Profile Integration Tests (Vitest + RTL)', () => {
       const lightbox = await screen.findByRole('dialog', { name: /이미지 확대/i });
 
       // Check that the correct image is displayed
-      const lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
+      let lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
       expect(lightboxImage).toHaveAttribute('src', 'https://example.com/img1.jpg');
     });
 
@@ -406,7 +406,7 @@ describe('Model Profile Integration Tests (Vitest + RTL)', () => {
       await user.click(nextButton);
 
       // Verify second image is displayed
-      const lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
+      let lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
       expect(lightboxImage).toHaveAttribute('src', 'https://example.com/img2.jpg');
     });
 
@@ -528,7 +528,7 @@ describe('Model Profile Integration Tests (Vitest + RTL)', () => {
       // Try to navigate with arrow key - should stay on last image
       await user.keyboard('{ArrowRight}');
 
-      let lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
+      const lightboxImage = within(lightbox).getByRole('img', { name: /현재 이미지/i });
       expect(lightboxImage).toHaveAttribute('src', 'https://example.com/img3.jpg');
     });
   });
@@ -741,7 +741,7 @@ describe('Model Profile Integration Tests (Vitest + RTL)', () => {
 
       expect(mockAddToast).toHaveBeenCalledWith({
         variant: 'info',
-        message: expect.stringContaining('준비'),
+        message: expect.stringContaining('메일'),
       });
     });
 

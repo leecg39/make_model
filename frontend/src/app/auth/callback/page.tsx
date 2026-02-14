@@ -8,22 +8,19 @@ import { useAuthStore } from '@/stores/auth';
 export default function AuthCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const token = searchParams.get('token');
+  const refreshToken = searchParams.get('refresh_token');
+  const errorParam = searchParams.get('error');
+  const initialError = errorParam
+    ? '소셜 로그인에 실패했습니다. 다시 시도해주세요.'
+    : !token
+      ? '인증 토큰이 없습니다.'
+      : null;
+  const [error, setError] = useState<string | null>(initialError);
   const fetchUser = useAuthStore((s) => s.fetchUser);
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const refreshToken = searchParams.get('refresh_token');
-    const errorParam = searchParams.get('error');
-
-    if (errorParam) {
-      setError('소셜 로그인에 실패했습니다. 다시 시도해주세요.');
-      setTimeout(() => router.push('/auth/login'), 2000);
-      return;
-    }
-
-    if (!token) {
-      setError('인증 토큰이 없습니다.');
+    if (initialError || !token) {
       setTimeout(() => router.push('/auth/login'), 2000);
       return;
     }
@@ -49,7 +46,7 @@ export default function AuthCallbackPage() {
       setError('사용자 정보를 불러오지 못했습니다.');
       setTimeout(() => router.push('/auth/login'), 2000);
     });
-  }, [searchParams, router, fetchUser]);
+  }, [initialError, token, refreshToken, router, fetchUser]);
 
   if (error) {
     return (
