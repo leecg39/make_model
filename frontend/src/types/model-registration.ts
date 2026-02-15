@@ -34,12 +34,12 @@ export interface AIAnalysisResult {
   description: string;
 }
 
-export interface ZaiGenerationRequest {
+export interface AIImageGenerationRequest {
   prompt: string;
   size: string;
 }
 
-export interface ZaiGenerationResult {
+export interface AIImageGenerationResult {
   url: string;
   created: number;
   fallback?: boolean;

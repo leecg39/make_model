@@ -2,14 +2,17 @@
 # @SPEC docs/planning/02-trd.md#앱-초기화
 """FastAPI application with authentication."""
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from sqlalchemy import text
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.staticfiles import StaticFiles
 
 from app.api.v1 import auth, chat, delivery, favorites, matching, models, orders, payments, settlements, stats, users
 from app.core.config import settings
@@ -57,8 +60,15 @@ app = FastAPI(
     debug=settings.DEBUG,
 )
 
+
+def _handle_rate_limit_exception(request: Request, exc: Exception):
+    if isinstance(exc, RateLimitExceeded):
+        return _rate_limit_exceeded_handler(request, exc)
+    logger.warning("Unexpected rate limit exception type: %s", type(exc).__name__)
+    return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
+
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _handle_rate_limit_exception)
 
 # ---------------------------------------------------------------------------
 # Middleware (order matters: last added = first executed)
@@ -95,6 +105,12 @@ app.include_router(payments.router, prefix=settings.API_V1_PREFIX)
 app.include_router(delivery.router, prefix=settings.API_V1_PREFIX)
 app.include_router(chat.router, prefix=settings.API_V1_PREFIX)
 app.include_router(settlements.router, prefix=settings.API_V1_PREFIX)
+
+picture_dir = Path(__file__).resolve().parents[2] / "picture"
+if picture_dir.exists():
+    app.mount("/picture", StaticFiles(directory=str(picture_dir)), name="picture")
+else:
+    logger.warning("Picture directory not found: %s", picture_dir)
 
 
 # ---------------------------------------------------------------------------

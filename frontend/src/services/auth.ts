@@ -3,7 +3,7 @@
  * Falls back to mock auth when backend is unavailable.
  */
 import { authLib } from '@/lib/auth';
-import { isMockAuthMode } from '@/lib/auth-mode';
+import { isMockAuthMode, isRealAuthMode, isSupabaseAuthMode } from '@/lib/auth-mode';
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 import type {
   AuthResponse,
@@ -16,13 +16,15 @@ import type {
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const MOCK_LOGIN_PASSWORD = 'MakeModel!2026';
+const LEGACY_MOCK_LOGIN_PASSWORD = 'password123';
 
 // Mock users for development when backend is unavailable
 const MOCK_USERS: Array<User & { password: string }> = [
   {
     id: 'brand-1',
     email: 'brand@test.com',
-    password: 'password123',
+    password: MOCK_LOGIN_PASSWORD,
     name: '테스트 브랜드',
     nickname: 'TestBrand',
     role: 'brand',
@@ -33,7 +35,7 @@ const MOCK_USERS: Array<User & { password: string }> = [
   {
     id: 'creator-1',
     email: 'creator@test.com',
-    password: 'password123',
+    password: MOCK_LOGIN_PASSWORD,
     name: '테스트 크리에이터',
     nickname: 'TestCreator',
     role: 'creator',
@@ -44,6 +46,27 @@ const MOCK_USERS: Array<User & { password: string }> = [
 ];
 
 const mockRegisteredUsers: Array<User & { password: string }> = [];
+const LEGACY_MOCK_USER_IDS = new Set(MOCK_USERS.map((user) => user.id));
+
+function shouldUseSupabaseAuth(): boolean {
+  return isSupabaseAuthMode() && isSupabaseConfigured();
+}
+
+function setStoredRefreshToken(token?: string): void {
+  if (typeof window === 'undefined' || !token) {
+    return;
+  }
+
+  localStorage.setItem('refresh_token', token);
+}
+
+function clearStoredRefreshToken(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  localStorage.removeItem('refresh_token');
+}
 
 function isNetworkFetchError(error: unknown): boolean {
   if (!(error instanceof TypeError)) {
@@ -86,13 +109,31 @@ function registerWithMock(data: RegisterRequest): RegisterResult {
 
 function loginWithMock(data: LoginRequest): AuthResponse {
   const allUsers = [...MOCK_USERS, ...mockRegisteredUsers];
-  const user = allUsers.find((candidate) => candidate.email === data.email && candidate.password === data.password);
+  const normalizedEmail = data.email.trim().toLowerCase();
+  const normalizedPassword = data.password.trim();
+
+  const user = allUsers.find((candidate) => {
+    if (candidate.email.toLowerCase() !== normalizedEmail) {
+      return false;
+    }
+
+    if (candidate.password === normalizedPassword) {
+      return true;
+    }
+
+    return (
+      LEGACY_MOCK_USER_IDS.has(candidate.id) &&
+      normalizedPassword === LEGACY_MOCK_LOGIN_PASSWORD
+    );
+  });
+
   if (!user) {
     throw new Error('이메일 또는 비밀번호가 올바르지 않습니다');
   }
 
   const token = `mock-token-${user.id}-${Date.now()}`;
   authLib.setToken(token);
+  clearStoredRefreshToken();
   if (typeof window !== 'undefined') {
     localStorage.setItem('mock_current_user', JSON.stringify(user));
   }
@@ -198,7 +239,7 @@ export const authService = {
       return registerWithMock(data);
     }
 
-    if (isSupabaseConfigured()) {
+    if (shouldUseSupabaseAuth()) {
       const supabase = getSupabaseClient();
       if (supabase) {
         const { data: signUpData, error } = await supabase.auth.signUp({
@@ -265,6 +306,10 @@ export const authService = {
       }
     }
 
+    if (isRealAuthMode()) {
+      throw new Error('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
     return registerWithMock(data);
   },
 
@@ -277,7 +322,7 @@ export const authService = {
       return loginWithMock(data);
     }
 
-    if (isSupabaseConfigured()) {
+    if (shouldUseSupabaseAuth()) {
       const supabase = getSupabaseClient();
       if (supabase) {
         const { data: signInData, error } = await supabase.auth.signInWithPassword({
@@ -321,12 +366,19 @@ export const authService = {
         if (result.access_token) {
           authLib.setToken(result.access_token);
         }
+        if (result.refresh_token) {
+          setStoredRefreshToken(result.refresh_token);
+        }
         return result;
       } catch (error) {
         if (!isNetworkFetchError(error)) {
           throw error;
         }
       }
+    }
+
+    if (isRealAuthMode()) {
+      throw new Error('인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
 
     return loginWithMock(data);
@@ -341,7 +393,7 @@ export const authService = {
         return;
       }
 
-      if (isSupabaseConfigured()) {
+      if (shouldUseSupabaseAuth()) {
         const supabase = getSupabaseClient();
         if (supabase) {
           await supabase.auth.signOut();
@@ -354,6 +406,7 @@ export const authService = {
       }
     } finally {
       authLib.removeToken();
+      clearStoredRefreshToken();
       if (typeof window !== 'undefined') {
         localStorage.removeItem('mock_current_user');
       }
@@ -373,7 +426,7 @@ export const authService = {
       throw new Error('Not authenticated');
     }
 
-    if (isSupabaseConfigured()) {
+    if (shouldUseSupabaseAuth()) {
       const supabase = getSupabaseClient();
       if (supabase) {
         const token = authLib.getToken();
@@ -400,6 +453,10 @@ export const authService = {
     }
 
     // Mock getCurrentUser fallback
+    if (isRealAuthMode()) {
+      throw new Error('Not authenticated');
+    }
+
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('mock_current_user');
       if (stored) {
@@ -439,7 +496,7 @@ export const authService = {
       return userWithoutPassword;
     }
 
-    if (isSupabaseConfigured()) {
+    if (shouldUseSupabaseAuth()) {
       const supabase = getSupabaseClient();
       if (supabase) {
         const metadata: Record<string, string | null> = {};
@@ -500,7 +557,7 @@ export const authService = {
       return;
     }
 
-    if (isSupabaseConfigured()) {
+    if (shouldUseSupabaseAuth()) {
       const supabase = getSupabaseClient();
       if (supabase) {
         const { data: userData } = await supabase.auth.getUser();
@@ -603,6 +660,10 @@ export const authService = {
       return { access_token: '', token_type: 'bearer' };
     }
 
+    if (isRealAuthMode()) {
+      throw new Error('소셜 로그인 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
     const mockSocialUser: User & { password: string } = provider === 'google'
       ? {
           id: 'google-1',
@@ -651,6 +712,7 @@ export const authService = {
       }
 
       authLib.removeToken();
+      clearStoredRefreshToken();
       if (typeof window !== 'undefined') {
         localStorage.removeItem('mock_current_user');
       }

@@ -6,6 +6,7 @@
 """
 import logging
 import uuid
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select, func, or_
@@ -60,7 +61,9 @@ async def create_model(
     await db.commit()
 
     # Reload with relationships
-    return await get_model_by_id(db, ai_model.id)
+    created = await get_model_by_id(db, ai_model.id)
+    assert created is not None, "Failed to load created model"
+    return created
 
 
 # ---------------------------------------------------------------------------
@@ -108,6 +111,7 @@ async def increment_view_count(
         Updated AIModel.
     """
     model.view_count = model.view_count + 1
+    model.updated_at = datetime.utcnow().replace(tzinfo=None)
     await db.commit()
     await db.refresh(model)
     return model
@@ -248,7 +252,9 @@ async def update_model(
     db.expunge_all()
 
     # Reload with relationships (fresh query, no stale cache)
-    return await get_model_by_id(db, model_id)
+    updated = await get_model_by_id(db, model_id)
+    assert updated is not None, "Failed to load updated model"
+    return updated
 
 
 # ---------------------------------------------------------------------------

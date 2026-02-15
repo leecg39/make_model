@@ -7,8 +7,8 @@ import type {
   ModelCreateRequest,
   ImageUploadData,
   AIAnalysisResult,
-  ZaiGenerationRequest,
-  ZaiGenerationResult,
+  AIImageGenerationRequest,
+  AIImageGenerationResult,
 } from '@/types/model-registration';
 import type { AIModel } from '@/types/model';
 
@@ -131,8 +131,8 @@ export const modelRegistrationService = {
     };
   },
 
-  async generateImage(request: ZaiGenerationRequest): Promise<ZaiGenerationResult> {
-    const response = await fetch('/api/ai/zai/generate-image', {
+  async generateImage(request: AIImageGenerationRequest): Promise<AIImageGenerationResult> {
+    const response = await fetch('/api/ai/gpt/generate-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

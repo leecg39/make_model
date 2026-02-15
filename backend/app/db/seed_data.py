@@ -1,7 +1,7 @@
 """Mock data for AI Model Marketplace.
 
-56개의 실제 모델 이미지를 기반으로 12개의 AI 모델 Mock 데이터 생성.
-이미지 경로: /picture/model/사진_XXX_YYYY.png
+로컬 이미지 폴더를 기반으로 12개의 AI 모델 Mock 데이터 생성.
+이미지 경로: /picture/image/*
 
 Usage:
     python -m app.db.seed_data
@@ -9,7 +9,12 @@ Usage:
 
 import uuid
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Optional
 import random
+import os
+
+from sqlalchemy import delete
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Mock Users (Creators)
@@ -70,11 +75,61 @@ MOCK_BRANDS = [
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Mock AI Models with real images from /picture/model/
+# Mock AI Models with real images from /picture/image/
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Image files grouped by model (4-5 images per model)
-IMAGE_BASE_PATH = "/picture/model"
+# Image files grouped by model
+MODEL_IMAGE_BASE_URL = os.getenv("MODEL_IMAGE_BASE_URL", "http://localhost:8000")
+IMAGE_BASE_PATH = f"{MODEL_IMAGE_BASE_URL.rstrip('/')}/picture/image"
+MODEL_IMAGE_SOURCE_DIR = Path(__file__).resolve().parents[3] / "picture" / "image"
+
+
+def _default_seed_image_files() -> list[str]:
+    files = [
+        "KakaoTalk_Photo_2026-02-14-01-09-23.png",
+        "pexels-tove-liu-2127454-3922718.jpg",
+        "picture03_image_008.jpeg",
+    ]
+    jpg_numbers = {15, 16, 17, 18, 22, 23, 24, 25}
+    for number in range(15, 287):
+        ext = "jpg" if number in jpg_numbers else "jpeg"
+        files.append(f"picture03_image_{number:03d}.{ext}")
+    return files
+
+
+def _load_seed_image_files() -> list[str]:
+    if MODEL_IMAGE_SOURCE_DIR.exists():
+        files = sorted(path.name for path in MODEL_IMAGE_SOURCE_DIR.iterdir() if path.is_file())
+        if files:
+            return files
+    return _default_seed_image_files()
+
+
+SEED_IMAGE_FILES = _load_seed_image_files()
+
+
+def _now_naive() -> datetime:
+    return datetime.utcnow().replace(tzinfo=None)
+
+
+def _resolve_model_image_entries(model_index: int, total_models: int) -> list[dict]:
+    total_images = len(SEED_IMAGE_FILES)
+    if total_images == 0:
+        return []
+
+    base_count, remainder = divmod(total_images, total_models)
+    start = model_index * base_count + min(model_index, remainder)
+    count = base_count + (1 if model_index < remainder else 0)
+    model_files = SEED_IMAGE_FILES[start:start + count]
+
+    return [
+        {
+            "file": filename,
+            "order": idx + 1,
+            "is_thumbnail": idx == 0,
+        }
+        for idx, filename in enumerate(model_files)
+    ]
 
 MOCK_AI_MODELS = [
     # Model 1: 캐주얼 여성 20대
@@ -333,7 +388,7 @@ def build_image_url(filename: str) -> str:
     return f"{IMAGE_BASE_PATH}/{filename}"
 
 
-def get_thumbnail_url(model: dict) -> str | None:
+def get_thumbnail_url(model: dict) -> Optional[str]:
     """Get thumbnail URL for a model."""
     for img in model.get("images", []):
         if img.get("is_thumbnail"):
@@ -341,11 +396,13 @@ def get_thumbnail_url(model: dict) -> str | None:
     return None
 
 
-def generate_model_images(model: dict) -> list[dict]:
+def generate_model_images(model: dict, model_index: int, total_models: int) -> list[dict]:
     """Generate ModelImage records for a model."""
     model_id = model["id"]
     result = []
-    for img in model.get("images", []):
+    assigned_images = _resolve_model_image_entries(model_index, total_models)
+    image_entries = assigned_images or model.get("images", [])
+    for img in image_entries:
         result.append({
             "id": str(uuid.uuid4()),
             "model_id": model_id,
@@ -379,7 +436,12 @@ async def seed_users(session):
     from app.core.security import get_password_hash
 
     all_users = MOCK_CREATORS + MOCK_BRANDS
+    user_ids = [user["id"] for user in all_users]
+    await session.execute(delete(User).where(User.id.in_(user_ids)))
+    await session.commit()
+
     for user_data in all_users:
+        now = _now_naive()
         user = User(
             id=user_data["id"],
             email=user_data["email"],
@@ -388,6 +450,8 @@ async def seed_users(session):
             role=user_data["role"],
             profile_image=user_data.get("profile_image"),
             company_name=user_data.get("company_name"),
+            created_at=now,
+            updated_at=now,
         )
         session.add(user)
     await session.commit()
@@ -398,7 +462,15 @@ async def seed_ai_models(session):
     """Seed mock AI models with images and tags."""
     from app.models.ai_model import AIModel, ModelImage, ModelTag
 
-    for model_data in MOCK_AI_MODELS:
+    model_ids = [model["id"] for model in MOCK_AI_MODELS]
+    await session.execute(delete(ModelImage).where(ModelImage.model_id.in_(model_ids)))
+    await session.execute(delete(ModelTag).where(ModelTag.model_id.in_(model_ids)))
+    await session.execute(delete(AIModel).where(AIModel.id.in_(model_ids)))
+    await session.commit()
+
+    total_models = len(MOCK_AI_MODELS)
+    for model_index, model_data in enumerate(MOCK_AI_MODELS):
+        now = _now_naive()
         # Create AI Model
         model = AIModel(
             id=model_data["id"],
@@ -411,17 +483,20 @@ async def seed_ai_models(session):
             view_count=model_data["view_count"],
             rating=model_data["rating"],
             status=model_data["status"],
+            created_at=now,
+            updated_at=now,
         )
         session.add(model)
 
         # Create Images
-        for img_data in generate_model_images(model_data):
+        for img_data in generate_model_images(model_data, model_index, total_models):
             image = ModelImage(
                 id=img_data["id"],
                 model_id=img_data["model_id"],
                 image_url=img_data["image_url"],
                 display_order=img_data["display_order"],
                 is_thumbnail=img_data["is_thumbnail"],
+                created_at=now,
             )
             session.add(image)
 
@@ -431,6 +506,7 @@ async def seed_ai_models(session):
                 id=tag_data["id"],
                 model_id=tag_data["model_id"],
                 tag=tag_data["tag"],
+                created_at=now,
             )
             session.add(tag)
 

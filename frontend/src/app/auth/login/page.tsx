@@ -10,6 +10,8 @@ import { useUIStore } from '@/stores/ui';
 import { motion } from 'framer-motion';
 import { isMockAuthMode } from '@/lib/auth-mode';
 
+const MOCK_LOGIN_PASSWORD = 'MakeModel!2026';
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -105,8 +107,8 @@ export default function LoginPage() {
 
   const handleMockAccountFill = (role: 'brand' | 'creator') => {
     const account = role === 'brand'
-      ? { email: 'brand@test.com', password: 'password123' }
-      : { email: 'creator@test.com', password: 'password123' };
+      ? { email: 'brand@test.com', password: MOCK_LOGIN_PASSWORD }
+      : { email: 'creator@test.com', password: MOCK_LOGIN_PASSWORD };
 
     setFormData(account);
     setFormErrors({ email: '', password: '' });

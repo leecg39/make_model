@@ -3,6 +3,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import type { ModelCreator, Creator } from '@/types/model';
 
 interface CreatorInfoProps {
@@ -10,9 +11,15 @@ interface CreatorInfoProps {
 }
 
 export function CreatorInfo({ creator }: CreatorInfoProps) {
+  const router = useRouter();
+
   if (!creator) {
     return null;
   }
+
+  const handleGoHome = () => {
+    router.push('/');
+  };
 
   return (
     <motion.div
@@ -21,7 +28,16 @@ export function CreatorInfo({ creator }: CreatorInfoProps) {
       transition={{ delay: 0.3 }}
       className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
     >
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">크리에이터 정보</h3>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">크리에이터 정보</h3>
+        <button
+          type="button"
+          onClick={handleGoHome}
+          className="text-sm font-semibold text-[#E882B2] hover:text-[#cc5a90] transition-colors"
+        >
+          Make Model
+        </button>
+      </div>
 
       <div className="flex items-center gap-4">
         {/* Profile image */}

@@ -93,18 +93,18 @@ export function AIImageGenerator({
   return (
     <div className="space-y-4 rounded-xl border border-white/10 bg-bg-secondary p-5">
       <div>
-        <h3 className="text-white font-semibold">AI 이미지 생성</h3>
+        <h3 className="text-white font-semibold">GPT 이미지 생성</h3>
         <p className="text-xs text-white/50 mt-1">
           생성된 이미지는 업로드 목록에 자동 추가됩니다.
         </p>
       </div>
 
       <div>
-        <label htmlFor="zai-prompt" className="block text-xs text-white/60 mb-1">
+        <label htmlFor="gpt-prompt" className="block text-xs text-white/60 mb-1">
           이미지 설명
         </label>
         <textarea
-          id="zai-prompt"
+          id="gpt-prompt"
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
           rows={3}
@@ -164,7 +164,7 @@ export function AIImageGenerator({
             : 'bg-white/10 text-white/40 cursor-not-allowed'
         }`}
       >
-        {loading ? '이미지 생성 중...' : 'AI 이미지 생성'}
+        {loading ? '이미지 생성 중...' : 'GPT 이미지 생성'}
       </motion.button>
 
       {loading && (
@@ -184,7 +184,7 @@ export function AIImageGenerator({
 
       {resultUrl && (
         <div className="rounded-lg overflow-hidden border border-white/10 bg-bg-primary">
-          <img src={resultUrl} alt="AI 생성 이미지" className="w-full h-48 object-cover" />
+          <img src={resultUrl} alt="GPT 생성 이미지" className="w-full h-48 object-cover" />
         </div>
       )}
     </div>

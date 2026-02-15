@@ -3,7 +3,7 @@
 @TASK P0-T0.2 - DB 스키마 및 마이그레이션
 @SPEC docs/planning/04-database-design.md#authtoken
 """
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import String, DateTime, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
@@ -25,7 +25,7 @@ class AuthToken(Base):
     )
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime, default=datetime.utcnow, nullable=False
     )
 
     # Relationships

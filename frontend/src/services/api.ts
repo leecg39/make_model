@@ -1,7 +1,10 @@
 import axios from 'axios';
+import { authLib } from '@/lib/auth';
+import { isMockAuthMode } from '@/lib/auth-mode';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  adapter: ['fetch', 'xhr', 'http'],
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,16 +14,25 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
+      let accessToken: string | null = null;
       const authStorage = localStorage.getItem('auth-storage');
       if (authStorage) {
         try {
           const { state } = JSON.parse(authStorage);
-          if (state?.token) {
-            config.headers.Authorization = `Bearer ${state.token}`;
+          if (typeof state?.token === 'string' && state.token) {
+            accessToken = state.token;
           }
         } catch {
           // Ignore parse errors
         }
+      }
+
+      if (!accessToken) {
+        accessToken = authLib.getToken();
+      }
+
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }
     return config;
@@ -36,6 +48,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (error.response?.status === 401 && typeof window !== 'undefined' && isMockAuthMode()) {
+      return Promise.reject(error);
+    }
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -47,8 +63,9 @@ api.interceptors.response.use(
         isRefreshing = true;
         try {
           const authStorage = localStorage.getItem('auth-storage');
-          const { state } = JSON.parse(authStorage || '{}');
-          const refreshToken = state?.refreshToken;
+          const parsed = JSON.parse(authStorage || '{}');
+          const state = parsed?.state || {};
+          const refreshToken = state?.refreshToken || localStorage.getItem('refresh_token');
 
           if (refreshToken) {
             const { data } = await axios.post(
@@ -56,13 +73,23 @@ api.interceptors.response.use(
               { refresh_token: refreshToken },
             );
 
-            const newState = { ...state, token: data.access_token };
+            const nextRefreshToken = data.refresh_token || refreshToken;
+            authLib.setToken(data.access_token);
+            localStorage.setItem('refresh_token', nextRefreshToken);
+
+            const newState = {
+              ...state,
+              token: data.access_token,
+              refreshToken: nextRefreshToken,
+            };
             localStorage.setItem(
               'auth-storage',
-              JSON.stringify({ state: newState, version: 0 }),
+              JSON.stringify({ ...parsed, state: newState, version: parsed?.version ?? 0 }),
             );
 
-            originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+            }
             isRefreshing = false;
             return api(originalRequest);
           }
@@ -72,6 +99,8 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
 
+      authLib.removeToken();
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('auth-storage');
       window.location.href = '/auth/login';
     }

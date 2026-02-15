@@ -1,10 +1,3 @@
-/**
- * Mock AI Models Data
- *
- * 56개의 실제 모델 이미지를 기반으로 12개의 AI 모델 Mock 데이터
- * 이미지 경로: /picture/model/사진_XXX_YYYY.png
- */
-
 import { AIModel, ModelImage, ModelsResponse } from '@/types/model';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,7 +35,7 @@ export const MOCK_CREATORS = [
 // Image Builder
 // ─────────────────────────────────────────────────────────────────────────────
 
-const IMAGE_BASE_PATH = '/picture/model';
+const IMAGE_BASE_PATH = '/picture/image';
 
 function buildImage(
   modelId: string,
@@ -64,7 +57,7 @@ function buildImage(
 // Mock AI Models
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const MOCK_AI_MODELS: AIModel[] = [
+const BASE_MOCK_AI_MODELS: AIModel[] = [
   // Model 1: 캐주얼 여성 20대
   {
     id: 'm0000000-0000-0000-0000-000000000001',
@@ -374,6 +367,47 @@ export const MOCK_AI_MODELS: AIModel[] = [
     updated_at: '2026-02-05T09:00:00Z',
   },
 ];
+
+function createSeedImageFiles(): string[] {
+  const files = [
+    'picture03_image_008.jpeg',
+  ];
+  const jpgNumbers = new Set([15, 16, 17, 18, 22, 23, 24, 25]);
+  for (let number = 15; number <= 286; number += 1) {
+    const ext = jpgNumbers.has(number) ? 'jpg' : 'jpeg';
+    files.push(`picture03_image_${String(number).padStart(3, '0')}.${ext}`);
+  }
+  return files;
+}
+
+const SEED_IMAGE_FILES = createSeedImageFiles();
+
+function getModelImageFilenames(modelIndex: number, totalModels: number): string[] {
+  const totalImages = SEED_IMAGE_FILES.length;
+  if (totalImages === 0 || totalModels <= 0) {
+    return [];
+  }
+
+  const baseCount = Math.floor(totalImages / totalModels);
+  const remainder = totalImages % totalModels;
+  const start = modelIndex * baseCount + Math.min(modelIndex, remainder);
+  const count = baseCount + (modelIndex < remainder ? 1 : 0);
+  return SEED_IMAGE_FILES.slice(start, start + count);
+}
+
+function buildModelImages(modelId: string, modelIndex: number, totalModels: number): ModelImage[] {
+  const filenames = getModelImageFilenames(modelIndex, totalModels);
+  return filenames.map((filename, index) => buildImage(modelId, filename, index + 1, index === 0));
+}
+
+export const MOCK_AI_MODELS: AIModel[] = BASE_MOCK_AI_MODELS.map((model, index, allModels) => {
+  const images = buildModelImages(model.id, index, allModels.length);
+  return {
+    ...model,
+    images,
+    thumbnail_url: images[0]?.image_url ?? null,
+  };
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper Functions

@@ -53,9 +53,6 @@ export function ModelCard({ model }: ModelCardProps) {
           </div>
         )}
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
         {/* Favorite button */}
         <motion.button
           onClick={handleFavorite}
@@ -77,7 +74,7 @@ export function ModelCard({ model }: ModelCardProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-          className="absolute bottom-4 left-4 right-4"
+          className="absolute left-3 right-3 bottom-3"
         >
           <button className="w-full py-3 bg-[#E882B2] text-black font-semibold rounded-lg hover:bg-[#f598c4] transition-colors">
             상세보기

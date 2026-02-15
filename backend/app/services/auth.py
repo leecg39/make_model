@@ -2,7 +2,7 @@
 # @SPEC docs/planning/02-trd.md#auth-api
 """Authentication service: user CRUD, token creation and refresh."""
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
 from jose import JWTError
@@ -90,7 +90,7 @@ async def create_tokens(
     refresh_token = create_refresh_token(subject=user.id)
 
     # Store refresh token in the database
-    expires_at = datetime.now(timezone.utc) + timedelta(
+    expires_at = datetime.utcnow() + timedelta(
         days=settings.REFRESH_TOKEN_EXPIRE_DAYS,
     )
     auth_token = AuthToken(
@@ -137,7 +137,7 @@ async def refresh_access_token(
         return None
 
     # Check expiry
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = datetime.utcnow()
     if stored_token.expires_at < now:
         # Clean up expired token
         await db.delete(stored_token)

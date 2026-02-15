@@ -8,13 +8,14 @@ Usage:
     python seed_sqlite.py
 """
 
-import asyncio
 import uuid
 from datetime import datetime
 from pathlib import Path
+from typing import TypedDict
+import os
 
-from sqlalchemy import String, Integer, Float, DateTime, Boolean, ForeignKey, Text, create_engine
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy import String, Integer, Float, DateTime, Boolean, ForeignKey, Text, create_engine, delete
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 import bcrypt
 
 
@@ -85,6 +86,27 @@ class ModelTag(Base):
 # Mock Data
 # ─────────────────────────────────────────────────────────────────────────────
 
+
+class SeedImageEntry(TypedDict):
+    file: str
+    order: int
+    is_thumbnail: bool
+
+
+class SeedModel(TypedDict):
+    id: str
+    creator_id: str
+    name: str
+    description: str
+    style: str
+    gender: str
+    age_range: str
+    view_count: int
+    rating: float
+    status: str
+    tags: list[str]
+    images: list[SeedImageEntry]
+
 def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
@@ -137,9 +159,55 @@ MOCK_BRANDS = [
     },
 ]
 
-IMAGE_BASE_PATH = "/picture/model"
+MODEL_IMAGE_BASE_URL = os.getenv("MODEL_IMAGE_BASE_URL", "http://localhost:8000")
+IMAGE_BASE_PATH = f"{MODEL_IMAGE_BASE_URL.rstrip('/')}/picture/image"
+MODEL_IMAGE_SOURCE_DIR = Path(__file__).resolve().parent.parent / "picture" / "image"
 
-MOCK_AI_MODELS = [
+
+def _default_seed_image_files() -> list[str]:
+    files = [
+        "KakaoTalk_Photo_2026-02-14-01-09-23.png",
+        "pexels-tove-liu-2127454-3922718.jpg",
+        "picture03_image_008.jpeg",
+    ]
+    jpg_numbers = {15, 16, 17, 18, 22, 23, 24, 25}
+    for number in range(15, 287):
+        ext = "jpg" if number in jpg_numbers else "jpeg"
+        files.append(f"picture03_image_{number:03d}.{ext}")
+    return files
+
+
+def _load_seed_image_files() -> list[str]:
+    if MODEL_IMAGE_SOURCE_DIR.exists():
+        files = sorted(path.name for path in MODEL_IMAGE_SOURCE_DIR.iterdir() if path.is_file())
+        if files:
+            return files
+    return _default_seed_image_files()
+
+
+SEED_IMAGE_FILES = _load_seed_image_files()
+
+
+def _resolve_model_image_entries(model_index: int, total_models: int) -> list[SeedImageEntry]:
+    total_images = len(SEED_IMAGE_FILES)
+    if total_images == 0:
+        return []
+
+    base_count, remainder = divmod(total_images, total_models)
+    start = model_index * base_count + min(model_index, remainder)
+    count = base_count + (1 if model_index < remainder else 0)
+    model_files = SEED_IMAGE_FILES[start:start + count]
+
+    return [
+        {
+            "file": filename,
+            "order": idx + 1,
+            "is_thumbnail": idx == 0,
+        }
+        for idx, filename in enumerate(model_files)
+    ]
+
+MOCK_AI_MODELS: list[SeedModel] = [
     {
         "id": "m0000000-0000-0000-0000-000000000001",
         "creator_id": "c1000000-0000-0000-0000-000000000001",
@@ -393,6 +461,12 @@ def seed_database():
     print(f"✓ Created database at {db_path}")
 
     with Session(engine) as session:
+        session.execute(delete(ModelImage))
+        session.execute(delete(ModelTag))
+        session.execute(delete(AIModel))
+        session.execute(delete(User))
+        session.commit()
+
         # Seed Users
         password_hash = get_password_hash("password123")
         all_users = MOCK_CREATORS + MOCK_BRANDS
@@ -413,7 +487,8 @@ def seed_database():
         print(f"✓ Created {len(all_users)} users")
 
         # Seed AI Models
-        for model_data in MOCK_AI_MODELS:
+        total_models = len(MOCK_AI_MODELS)
+        for model_index, model_data in enumerate(MOCK_AI_MODELS):
             model = AIModel(
                 id=model_data["id"],
                 creator_id=model_data["creator_id"],
@@ -428,8 +503,8 @@ def seed_database():
             )
             session.add(model)
 
-            # Add images
-            for img in model_data["images"]:
+            model_images = _resolve_model_image_entries(model_index, total_models) or model_data["images"]
+            for img in model_images:
                 image = ModelImage(
                     id=str(uuid.uuid4()),
                     model_id=model_data["id"],
@@ -455,7 +530,7 @@ def seed_database():
     print(f"  Database file: {db_path}")
     print(f"  Users: {len(all_users)} (4 creators + 2 brands)")
     print(f"  AI Models: {len(MOCK_AI_MODELS)}")
-    print(f"  Total Images: {sum(len(m['images']) for m in MOCK_AI_MODELS)}")
+    print(f"  Total Images: {len(SEED_IMAGE_FILES)}")
     print(f"  Total Tags: {sum(len(m['tags']) for m in MOCK_AI_MODELS)}")
 
 

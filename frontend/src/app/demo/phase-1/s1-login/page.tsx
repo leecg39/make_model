@@ -23,7 +23,7 @@ const DEMO_STATES = {
   },
   loading: {
     email: 'test@example.com',
-    password: 'password123',
+    password: 'MakeModel!2026',
     error: null,
     isLoading: true,
   },

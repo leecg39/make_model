@@ -38,6 +38,21 @@ const AGE_RANGE_OPTIONS = [
   { value: '40s_plus', label: '40s+' },
 ];
 
+const TAG_GROUPS = [
+  {
+    label: '스타일/무드',
+    options: ['스포티', '트렌디', '캐주얼', '스트릿', '포멀', '빈티지'],
+  },
+  {
+    label: '브랜드/활용',
+    options: ['브랜드광고', 'SNS캠페인', '커머스', '룩북', '비즈니스', '오피스'],
+  },
+  {
+    label: '타깃/채널',
+    options: ['인스타', '숏폼', 'MZ세대', '영캐주얼', '하이엔드', '럭셔리'],
+  },
+];
+
 export function RegistrationForm({ onSubmit, isSubmitting = false }: RegistrationFormProps) {
   const [formData, setFormData] = useState<ModelCreateRequest>({
     name: '',
@@ -50,7 +65,6 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
   });
 
   const [images, setImages] = useState<ImagePreviewItem[]>([]);
-  const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // 필드 변경 핸들러
@@ -62,28 +76,12 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
     }
   };
 
-  // 태그 추가
-  const handleAddTag = () => {
-    const trimmed = tagInput.trim();
-    if (!trimmed) return;
-
-    if (formData.tags && formData.tags.includes(trimmed)) {
-      alert('이미 추가된 태그입니다');
-      return;
-    }
-
+  const handleToggleTag = (tag: string) => {
     setFormData((prev) => ({
       ...prev,
-      tags: [...(prev.tags || []), trimmed],
-    }));
-    setTagInput('');
-  };
-
-  // 태그 삭제
-  const handleRemoveTag = (tag: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: (prev.tags || []).filter((t) => t !== tag),
+      tags: (prev.tags || []).includes(tag)
+        ? (prev.tags || []).filter((t) => t !== tag)
+        : [...(prev.tags || []), tag],
     }));
   };
 
@@ -169,7 +167,10 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
     >
       {/* 이미지 업로드 섹션 */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">이미지 업로드</h2>
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#E882B2] shadow-[0_0_12px_rgba(232,130,178,0.9)]" />
+          <h2 className="text-xl font-semibold text-[#f7bad4]">이미지 업로드</h2>
+        </div>
         <AIImageGenerator
           onGenerated={handleGeneratedImageAdd}
           images={images}
@@ -185,7 +186,10 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
       {/* AI 자동 분석 섹션 */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">AI 자동 분석</h2>
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#E882B2] shadow-[0_0_12px_rgba(232,130,178,0.9)]" />
+          <h2 className="text-xl font-semibold text-[#f7bad4]">AI 자동 분석</h2>
+        </div>
         <AIAutoGenerate
           imageUrls={imageUrls}
           onAnalysisComplete={handleAIAnalysis}
@@ -195,7 +199,10 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
       {/* 기본 정보 섹션 */}
       <section className="space-y-6">
-        <h2 className="text-xl font-semibold text-white">기본 정보</h2>
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#E882B2] shadow-[0_0_12px_rgba(232,130,178,0.9)]" />
+          <h2 className="text-xl font-semibold text-[#f7bad4]">기본 정보</h2>
+        </div>
 
         {/* 모델 이름 */}
         <div>
@@ -245,29 +252,30 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
         {/* 스타일 */}
         <div>
-          <label htmlFor="style" className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             스타일 <span className="text-red-400">*</span>
           </label>
-          <select
-            id="style"
-            value={formData.style}
-            onChange={(e) => handleChange('style', e.target.value)}
-            className={`
-              w-full px-4 py-3 rounded-lg bg-bg-secondary border transition-colors
-              text-white
-              focus:outline-none focus:ring-2 focus:ring-accent-neon/50
-              ${errors.style ? 'border-red-500' : 'border-white/10'}
-            `}
-            aria-invalid={!!errors.style}
-            aria-describedby={errors.style ? 'style-error' : undefined}
-          >
-            <option value="">선택하세요</option>
-            {STYLE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className={`rounded-lg border p-3 ${errors.style ? 'border-red-500' : 'border-white/10'}`}>
+            <div className="flex flex-wrap gap-2">
+              {STYLE_OPTIONS.map((option) => {
+                const selected = formData.style === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleChange('style', option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      selected
+                        ? 'bg-[#E882B2] text-black border-[#E882B2]'
+                        : 'bg-white/5 text-white/80 border-white/15 hover:bg-white/10'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {errors.style && (
             <p id="style-error" className="text-red-400 text-sm mt-1" role="alert">
               {errors.style}
@@ -277,29 +285,30 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
         {/* 성별 */}
         <div>
-          <label htmlFor="gender" className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             성별 <span className="text-red-400">*</span>
           </label>
-          <select
-            id="gender"
-            value={formData.gender}
-            onChange={(e) => handleChange('gender', e.target.value)}
-            className={`
-              w-full px-4 py-3 rounded-lg bg-bg-secondary border transition-colors
-              text-white
-              focus:outline-none focus:ring-2 focus:ring-accent-neon/50
-              ${errors.gender ? 'border-red-500' : 'border-white/10'}
-            `}
-            aria-invalid={!!errors.gender}
-            aria-describedby={errors.gender ? 'gender-error' : undefined}
-          >
-            <option value="">선택하세요</option>
-            {GENDER_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className={`rounded-lg border p-3 ${errors.gender ? 'border-red-500' : 'border-white/10'}`}>
+            <div className="flex flex-wrap gap-2">
+              {GENDER_OPTIONS.map((option) => {
+                const selected = formData.gender === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleChange('gender', option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      selected
+                        ? 'bg-[#E882B2] text-black border-[#E882B2]'
+                        : 'bg-white/5 text-white/80 border-white/15 hover:bg-white/10'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {errors.gender && (
             <p id="gender-error" className="text-red-400 text-sm mt-1" role="alert">
               {errors.gender}
@@ -309,29 +318,30 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
         {/* 나이대 */}
         <div>
-          <label htmlFor="age_range" className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             나이대 <span className="text-red-400">*</span>
           </label>
-          <select
-            id="age_range"
-            value={formData.age_range}
-            onChange={(e) => handleChange('age_range', e.target.value)}
-            className={`
-              w-full px-4 py-3 rounded-lg bg-bg-secondary border transition-colors
-              text-white
-              focus:outline-none focus:ring-2 focus:ring-accent-neon/50
-              ${errors.age_range ? 'border-red-500' : 'border-white/10'}
-            `}
-            aria-invalid={!!errors.age_range}
-            aria-describedby={errors.age_range ? 'age_range-error' : undefined}
-          >
-            <option value="">선택하세요</option>
-            {AGE_RANGE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className={`rounded-lg border p-3 ${errors.age_range ? 'border-red-500' : 'border-white/10'}`}>
+            <div className="flex flex-wrap gap-2">
+              {AGE_RANGE_OPTIONS.map((option) => {
+                const selected = formData.age_range === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleChange('age_range', option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      selected
+                        ? 'bg-[#E882B2] text-black border-[#E882B2]'
+                        : 'bg-white/5 text-white/80 border-white/15 hover:bg-white/10'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {errors.age_range && (
             <p id="age_range-error" className="text-red-400 text-sm mt-1" role="alert">
               {errors.age_range}
@@ -341,35 +351,36 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
 
         {/* 태그 */}
         <div>
-          <label htmlFor="tag-input" className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             태그
           </label>
-          <div className="flex gap-2">
-            <input
-              id="tag-input"
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddTag();
-                }
-              }}
-              className="
-                flex-1 px-4 py-3 rounded-lg bg-bg-secondary border border-white/10
-                text-white placeholder:text-white/40 transition-colors
-                focus:outline-none focus:ring-2 focus:ring-accent-neon/50
-              "
-              placeholder="태그 입력 후 Enter"
-            />
-            <button
-              type="button"
-              onClick={handleAddTag}
-              className="px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors font-medium"
-            >
-              추가
-            </button>
+          <div className="rounded-lg border border-white/10 p-3">
+            <div className="space-y-3">
+              {TAG_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="text-xs text-white/55 mb-2">{group.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.options.map((tag) => {
+                      const selected = (formData.tags || []).includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => handleToggleTag(tag)}
+                          className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                            selected
+                              ? 'bg-[#E882B2] text-black border-[#E882B2]'
+                              : 'bg-white/5 text-white/80 border-white/15 hover:bg-white/10'
+                          }`}
+                        >
+                          #{tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* 태그 목록 */}
@@ -386,7 +397,7 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
                   #{tag}
                   <button
                     type="button"
-                    onClick={() => handleRemoveTag(tag)}
+                    onClick={() => handleToggleTag(tag)}
                     className="text-white/60 hover:text-white transition-colors"
                     aria-label={`태그 ${tag} 삭제`}
                   >
@@ -440,19 +451,19 @@ export function RegistrationForm({ onSubmit, isSubmitting = false }: Registratio
             flex items-center justify-center gap-2
             ${
               !isSubmitting
-                ? 'bg-accent-neon text-black hover:bg-accent-neon/90'
-                : 'bg-accent-neon/50 text-black/50 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-[#E882B2] to-[#c95d93] text-white hover:from-[#f19ec5] hover:to-[#d66ea1] shadow-[0_8px_30px_rgba(232,130,178,0.35)]'
+                : 'bg-[#E882B2]/40 text-white/70 cursor-not-allowed'
             }
           `}
           aria-busy={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               등록 중...
             </>
           ) : (
-            '공개 등록'
+            'AI모델 생성하기'
           )}
         </motion.button>
       </section>

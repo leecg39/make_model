@@ -27,6 +27,7 @@ export default function AuthCallbackPage() {
 
     // Store tokens
     authLib.setToken(token);
+    useAuthStore.setState({ token });
     if (refreshToken) {
       localStorage.setItem('refresh_token', refreshToken);
     }

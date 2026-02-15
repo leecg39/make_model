@@ -63,9 +63,6 @@ export function ModelCard({
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
 
-        {/* Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
         {/* Favorite Button */}
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -100,7 +97,7 @@ export function ModelCard({
         </div>
 
         {/* Quick View Button - Shows on Hover */}
-        <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute left-3 right-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="block w-full text-center py-2 bg-[#E882B2] text-black text-sm font-semibold rounded-lg">
             자세히 보기
           </span>

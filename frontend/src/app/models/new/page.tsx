@@ -89,25 +89,66 @@ export default function NewModelPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+    <div className="min-h-screen bg-[#0a0a0a] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-35 pointer-events-none">
+        <div className="absolute top-24 right-16 h-72 w-72 rounded-full bg-[#E882B2] blur-[130px]" />
+        <div className="absolute bottom-10 left-12 h-80 w-80 rounded-full bg-[#b45bd8] blur-[160px]" />
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 relative z-10">
         {/* 헤더 */}
-        <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">새 모델 등록</h1>
-          <p className="text-white/60">
+        <header className="mb-8 rounded-2xl border border-[#E882B2]/25 bg-[#111]/85 p-6 sm:p-8 backdrop-blur-sm">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-14 w-14 rounded-2xl border border-[#E882B2]/40 bg-gradient-to-br from-[#f7bad4]/40 via-[#E882B2]/25 to-[#9f5bd1]/30 flex items-center justify-center shadow-[0_10px_30px_rgba(232,130,178,0.3)]">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 64 64"
+                className="h-8 w-8 text-[#ffd2e7]"
+                fill="none"
+              >
+                <circle cx="32" cy="18" r="7" stroke="currentColor" strokeWidth="2.8" />
+                <path
+                  d="M17 28c2-7 7-12 15-12s13 5 15 12v7h-5v-6c0-5-4-9-10-9s-10 4-10 9v6h-5v-7z"
+                  fill="currentColor"
+                  fillOpacity="0.22"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                />
+                <path
+                  d="M22 51V39c0-6 4-10 10-10s10 4 10 10v12"
+                  stroke="currentColor"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M25 56h14"
+                  stroke="currentColor"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs tracking-[0.2em] uppercase text-[#f3b7d6]/85 font-semibold">Model Studio</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#f7bad4]">새 모델 등록</h1>
+            </div>
+          </div>
+          <p className="text-[#f3b7d6]/85">
             AI 모델의 정보와 이미지를 등록하여 브랜드에게 어필하세요
           </p>
         </header>
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4" role="alert">
-            <p className="text-red-400">{error}</p>
+          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4" role="alert">
+            <p className="text-red-300">{error}</p>
           </div>
         )}
 
         {/* 등록 폼 */}
-        <RegistrationForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <div className="rounded-2xl border border-white/10 bg-[#111]/85 p-6 sm:p-8 backdrop-blur-sm">
+          <RegistrationForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        </div>
       </div>
     </div>
   );

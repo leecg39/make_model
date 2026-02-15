@@ -8,7 +8,31 @@ import {
   MOCK_AI_MODELS,
 } from '@/mocks/models';
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+
+function normalizeImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function normalizeModelImageUrls(model: AIModel): AIModel {
+  const normalizedImages = model.images?.map((image) => ({
+    ...image,
+    image_url: normalizeImageUrl(image.image_url) || image.image_url,
+  }));
+
+  return {
+    ...model,
+    thumbnail_url: normalizeImageUrl(model.thumbnail_url),
+    images: normalizedImages,
+  };
+}
+
+function normalizeModels(models: AIModel[]): AIModel[] {
+  return models.map(normalizeModelImageUrls);
+}
 
 function getMergedMockModels(): AIModel[] {
   const storedModels = getStoredMockModels();
@@ -66,6 +90,17 @@ function applyMockSort(models: AIModel[], sort?: string): AIModel[] {
   return sorted;
 }
 
+function mapSortParam(sort?: string): string | undefined {
+  if (!sort) return undefined;
+  if (sort === 'popular' || sort === 'recent' || sort === 'rating') return sort;
+
+  const [field] = sort.split(':');
+  if (field === 'view_count') return 'popular';
+  if (field === 'created_at') return 'recent';
+  if (field === 'rating') return 'rating';
+  return undefined;
+}
+
 export const modelService = {
   /**
    * 모델 목록 조회 (필터, 검색, 페이지네이션, 정렬)
@@ -79,7 +114,7 @@ export const modelService = {
       const filtered = applyMockFilters(getMergedMockModels(), params);
       const sorted = applyMockSort(filtered, params.sort);
       return {
-        items: sorted.slice(offset, offset + limit),
+        items: normalizeModels(sorted.slice(offset, offset + limit)),
         total: sorted.length,
         page,
         limit,
@@ -103,10 +138,14 @@ export const modelService = {
     if (params.keyword) queryParams.append('keyword', params.keyword);
 
     // 정렬
-    if (params.sort) queryParams.append('sort', params.sort);
+    const sortParam = mapSortParam(params.sort);
+    if (sortParam) queryParams.append('sort', sortParam);
 
     const { data } = await api.get<ModelsResponse>(`/api/models?${queryParams.toString()}`);
-    return data;
+    return {
+      ...data,
+      items: normalizeModels(data.items),
+    };
   },
 
   /**
@@ -117,11 +156,11 @@ export const modelService = {
       await new Promise((r) => setTimeout(r, 150));
       const model = getMergedMockModels().find((item) => item.id === id) || getMockModelById(id);
       if (!model) throw new Error('모델을 찾을 수 없습니다');
-      return model;
+      return normalizeModelImageUrls(model);
     }
 
     const { data } = await api.get<AIModel>(`/api/models/${id}`);
-    return data;
+    return normalizeModelImageUrls(data);
   },
 
   /**
@@ -130,10 +169,10 @@ export const modelService = {
   async getPopularModels(): Promise<AIModel[]> {
     if (USE_MOCK) {
       await new Promise((r) => setTimeout(r, 200));
-      return [...getMergedMockModels()].sort((a, b) => b.view_count - a.view_count).slice(0, 8);
+      return normalizeModels([...getMergedMockModels()].sort((a, b) => b.view_count - a.view_count).slice(0, 8));
     }
 
-    const response = await this.getModels({ sort: 'view_count:desc', limit: 8, status: 'published' });
+    const response = await this.getModels({ sort: 'popular', limit: 8, status: 'active' });
     return response.items;
   },
 
@@ -143,12 +182,12 @@ export const modelService = {
   async getRecentModels(): Promise<AIModel[]> {
     if (USE_MOCK) {
       await new Promise((r) => setTimeout(r, 200));
-      return [...getMergedMockModels()]
+      return normalizeModels([...getMergedMockModels()]
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 8);
+        .slice(0, 8));
     }
 
-    const response = await this.getModels({ sort: 'created_at:desc', limit: 8, status: 'published' });
+    const response = await this.getModels({ sort: 'recent', limit: 8, status: 'active' });
     return response.items;
   },
 
